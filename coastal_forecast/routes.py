@@ -5,4 +5,4 @@ from coastal_forecast import app
 # home page
 @app.route("/")
 def home():
-    return render_template("layout.html")
+    return render_template('layout.html')
