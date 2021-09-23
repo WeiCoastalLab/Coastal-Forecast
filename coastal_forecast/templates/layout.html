@@ -8,9 +8,10 @@
     <meta name="keywords" content="coastal engineering, coastal modeling, coastal forecast, machine learning, LSTM, neural networks">
     <meta name="author" content="Andrew Davison">
 
-    <!-- Boostrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
     {% if title %}
         <title>Coastal Forecasting - {{ title }}</title>
@@ -18,35 +19,35 @@
         <title>Coastal Forecasting</title>
     {% endif %}
 </head>
+
 <body>
-    <header class="site-header">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dk-blue fixed-top">
-            <div class="container">
-                <a class="navbar-brand mr-4" href="/">Coastal Forecast</a>
-            </div>
-        </nav>
-    </header>
-    <main role="main" class="container">
-        <div class="row">
-            <div class="col-md-8">
-                {% block content %}{% endblock %}
-                <a class="btn btn-primary btn-lg text-uppercase bg-dk-blue" href="#">Get new prediction</a>
-            </div>
-            <div class="img-with-text">
-                <img src="{{ url_for('static', filename='map.png') }}" alt="map" usemap="#map">
-                <p style="color:blue"><strong>Select station on the map you wish to view</strong></p>
-            </div>
-            <map name="map">
-                <area shape="rect" coords="90, 400, 150, 420" alt="41009" href="41009">
-                <area shape="rect" coords="80, 340, 140, 360" alt="41008" href="41008">
-                <area shape="rect" coords="130, 290, 190, 320" alt="41013" href="41013">
-                <area shape="rect" coords="250, 110, 310, 130" alt="44013" href="44013">
-            </map>
+
+<div class="jumbotron text-center" style="background-color:#00008B">
+    <h1 style="color:#FFFFFF">Coastal Forecast</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8">
+            {% block content %}{% endblock %}
+            <button class="btn btn-primary btn-lg text-uppercase bg-dk-blue" href="#">Get new prediction</button>
         </div>
-        <center>Last prediction time, time until next prediction counter goes here...</center>
-        <p>
-            <center><strong>PREDICTION PLOTS WILL GO HERE!!!</strong></center>
-        </p>
-    </main>
+        <div class="col-sm-4">
+            <img src="{{ url_for('static', filename='map.png') }}" alt="map" usemap="#map">
+            <p style="color:blue"><strong>Select station on the map you wish to view</strong></p>
+        </div>
+        <map name="map">
+            <area shape="rect" coords="90, 400, 150, 420" alt="41009" href="41009">
+            <area shape="rect" coords="80, 340, 140, 360" alt="41008" href="41008">
+            <area shape="rect" coords="130, 290, 190, 320" alt="41013" href="41013">
+            <area shape="rect" coords="250, 110, 310, 130" alt="44013" href="44013">
+        </map>
+    </div>
+    <div class="container text-center">
+        <h3>Last prediction time, time until next prediction counter goes here...</h3>
+        <p><strong>PREDICTION PLOTS WILL GO HERE!!!</strong></p>
+    </div>
+</div>
+
 </body>
 </html>
