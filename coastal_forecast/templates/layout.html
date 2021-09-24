@@ -13,6 +13,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
+        <!-- Set page title -->
         {% if title %}
             <title>Coastal Forecasting - {{ title }}</title>
         {% else %}
@@ -20,7 +21,7 @@
         {% endif %}
     </head>
     <body>
-        <!-- Header -->
+        <!-- Page header -->
         <div class="jumbotron text-center" style="background-color:#00008B">
             <h1 style="color:#FFFFFF">Coastal Forecast</h1>
         </div>
@@ -28,13 +29,16 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-8">
+                    <!-- block content for station information -->
                     {% block content %}{% endblock %}
                     <button class="btn btn-primary btn-lg text-uppercase bg-dk-blue" href="#">Get new prediction</button>
                 </div>
+                <!-- Interactive map -->
                 <div class="col-sm-4">
                     <img src="{{ url_for('static', filename='map.png') }}" alt="map" usemap="#map">
                     <p style="color:blue"><strong>Select station on the map you wish to view</strong></p>
                 </div>
+                <!-- make map interactive at the locations of each station -->
                 <map name="map">
                     <area shape="rect" coords="90, 400, 150, 420" alt="41009" href="41009">
                     <area shape="rect" coords="80, 340, 140, 360" alt="41008" href="41008">
