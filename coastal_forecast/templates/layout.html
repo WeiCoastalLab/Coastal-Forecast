@@ -1,53 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <!-- meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Andrew Davison, Zhangping Wei, John Wei, UNCW, display prediction results of Eastern United States NOAA wind wave data.">
-    <meta name="keywords" content="coastal engineering, coastal modeling, coastal forecast, machine learning, LSTM, neural networks">
-    <meta name="author" content="Andrew Davison">
+    <head>
+        <!-- meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Andrew Davison, Zhangping Wei, John Wei, UNCW, display prediction results of Eastern United States NOAA wind wave data.">
+        <meta name="keywords" content="coastal engineering, coastal modeling, coastal forecast, machine learning, LSTM, neural networks">
+        <meta name="author" content="Andrew Davison">
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
-    {% if title %}
-        <title>Coastal Forecasting - {{ title }}</title>
-    {% else %}
-        <title>Coastal Forecasting</title>
-    {% endif %}
-</head>
-
-<body>
-
-<div class="jumbotron text-center" style="background-color:#00008B">
-    <h1 style="color:#FFFFFF">Coastal Forecast</h1>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-sm-8">
-            {% block content %}{% endblock %}
-            <button class="btn btn-primary btn-lg text-uppercase bg-dk-blue" href="#">Get new prediction</button>
+        {% if title %}
+            <title>Coastal Forecasting - {{ title }}</title>
+        {% else %}
+            <title>Coastal Forecasting</title>
+        {% endif %}
+    </head>
+    <body>
+        <!-- Header -->
+        <div class="jumbotron text-center" style="background-color:#00008B">
+            <h1 style="color:#FFFFFF">Coastal Forecast</h1>
         </div>
-        <div class="col-sm-4">
-            <img src="{{ url_for('static', filename='map.png') }}" alt="map" usemap="#map">
-            <p style="color:blue"><strong>Select station on the map you wish to view</strong></p>
+        <!-- Main content with map -->
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8">
+                    {% block content %}{% endblock %}
+                    <button class="btn btn-primary btn-lg text-uppercase bg-dk-blue" href="#">Get new prediction</button>
+                </div>
+                <div class="col-sm-4">
+                    <img src="{{ url_for('static', filename='map.png') }}" alt="map" usemap="#map">
+                    <p style="color:blue"><strong>Select station on the map you wish to view</strong></p>
+                </div>
+                <map name="map">
+                    <area shape="rect" coords="90, 400, 150, 420" alt="41009" href="41009">
+                    <area shape="rect" coords="80, 340, 140, 360" alt="41008" href="41008">
+                    <area shape="rect" coords="130, 290, 190, 320" alt="41013" href="41013">
+                    <area shape="rect" coords="250, 110, 310, 130" alt="44013" href="44013">
+                </map>
+            </div>
+            <!-- Prediction counter and results -->
+            <div class="container text-center">
+                <h3>Last prediction time, time until next prediction counter goes here...</h3>
+                <p><strong>PREDICTION PLOTS WILL GO HERE!!!</strong></p>
+            </div>
         </div>
-        <map name="map">
-            <area shape="rect" coords="90, 400, 150, 420" alt="41009" href="41009">
-            <area shape="rect" coords="80, 340, 140, 360" alt="41008" href="41008">
-            <area shape="rect" coords="130, 290, 190, 320" alt="41013" href="41013">
-            <area shape="rect" coords="250, 110, 310, 130" alt="44013" href="44013">
-        </map>
-    </div>
-    <div class="container text-center">
-        <h3>Last prediction time, time until next prediction counter goes here...</h3>
-        <p><strong>PREDICTION PLOTS WILL GO HERE!!!</strong></p>
-    </div>
-</div>
-
-</body>
+        <!-- Footer -->
+		<!-- how to update the copyright note, https://kerstinmartin.com/blog/copyright-notice -->
+        <!-- <footer class="footer py-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="text-align">Copyright &copy; <script>document.write(new Date().getFullYear())</script> Andrew Davison. Used images in the Research section were licensed under <a href="https://creativecommons.org/about/cclicenses/" target="_blank">CC licenses</a> and from the public domain.</div>
+                </div>
+            </div>
+        </footer> -->
+    </body>
 </html>
