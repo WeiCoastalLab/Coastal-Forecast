@@ -1,5 +1,7 @@
 from flask import render_template
-from coastal_forecast import app
+from coastal_forecast import app, DataManager, PredictionManager, ResultsManager
+
+components = [DataManager.hello(), PredictionManager.hello(), ResultsManager.hello()]
 
 
 # home page
