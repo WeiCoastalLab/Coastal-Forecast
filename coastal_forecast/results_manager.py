@@ -3,3 +3,11 @@
 
 def hello():
     return "Hello from Component results_manager"
+
+
+def store_results():
+    pass
+
+
+def get_results():
+    pass
