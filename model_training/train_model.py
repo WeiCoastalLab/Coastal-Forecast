@@ -4,7 +4,6 @@ from math import sqrt
 
 import matplotlib
 import numpy as np
-import pandas as pd
 from matplotlib import pyplot as plt
 from numpy import array, split
 from pandas import read_csv
@@ -94,7 +93,9 @@ def split_dataset(data, n_output):
     :param n_output: number of required outputs for the ML model.
     :return: tuple of train set, test set, target scaler, lower split index, upper split index.
     """
+    print("Splitting data...")
     data = data.to_numpy()
+
     # define the scaler
     scaler_input = StandardScaler()
     scaler_target = StandardScaler()
@@ -103,17 +104,13 @@ def split_dataset(data, n_output):
     with open('../model/scalers.pkl', 'wb') as scaler_f:
         pickle.dump([scaler_input, scaler_target], scaler_f)
     data_scaled = np.column_stack((data_scaled, target_scaled))
+
     # split into train and test
     split_idx = 38304
     n_times = (data.shape[0] - split_idx) // n_output
     split_idx_up = split_idx + n_times*n_output
     train, test, data_test = data_scaled[:split_idx], data_scaled[split_idx:split_idx_up], data[split_idx:split_idx_up]
-    # train_data, test_data = array(data[:split_idx]), array(data[split_idx:split_idx_up])
-    # np.savetxt('../training_data/train.csv', train_data, delimiter=',')
-    # np.savetxt('../training_data/test.csv', test_data, delimiter=',')
-    # pd.DataFrame(array(data[:split_idx])).to_csv('../training_data/train.csv')
-    # pd.DataFrame(array(data[split_idx:split_idx_up])).to_csv('../training_data/train.csv')
-    return array(split(train, len(train) / n_output)), array(split(test, len(test) / n_output)), scaler_target, split_idx, split_idx_up  # pd.DataFrame(data_test, index='Time', columns=['WDIR', 'WSPD', 'PRES', 'WVHT', 'APD', 'MWD'])
+    return array(split(train, len(train) / n_output)), array(split(test, len(test) / n_output)), scaler_target, split_idx, split_idx_up
 
 
 def evaluate_forecasts(actual, predicted):
@@ -124,6 +121,7 @@ def evaluate_forecasts(actual, predicted):
     :param predicted: array of inverse scaled predicted responses.
     :return: tuple of a list of RMSE scores and overall RMSE.
     """
+    print("Evaluating forecasts...")
     scores = []
     # calculate an RMSE score for each
     for i in range(actual.shape[1]):
@@ -189,6 +187,7 @@ def build_model(train, n_input, n_output):
     :param n_output: number of outputs required.
     :return: The trained ML model.
     """
+    print("Building model...")
     train_x, train_y = to_supervised(train, n_input, n_output)
     verbose, epochs, batch_size = 0, 50, 64
     n_features, n_outputs = train_x.shape[2], train_y.shape[1]
@@ -217,9 +216,10 @@ def build_model(train, n_input, n_output):
     model.compile(loss='mse', optimizer=opt,
                   metrics=['accuracy', mse, r_square, rmse])
     model.summary()
-
     # theres a bug here...something that PyCharm doesn't like. Is a plot of the model really needed??
     # plot_model(model, show_shapes=True, show_layer_names=True, to_file='../model/model.png')
+
+    print("Fitting model...")
     # fit the model and capture history of performance
     fit_start = timeit.default_timer()
     history = model.fit(train_X, train_Y, epochs=epochs,
@@ -270,6 +270,8 @@ def evaluate_model(train, test, n_input, n_output, scaler_target):
     pred_start = timeit.default_timer()
     history = [x for x in train]
     predictions = []
+
+    print("Running predictions...")
     for i in range(len(test)):
         yhat_sequence = forecast(model, history, n_input)
         predictions.append(yhat_sequence)
@@ -277,6 +279,7 @@ def evaluate_model(train, test, n_input, n_output, scaler_target):
     predictions = array(predictions)
     pred_end = timeit.default_timer() - pred_start
     print('Prediction time: {:.2f} seconds'.format(pred_end))
+
     # post processing for evaluating the forecasts
     # squeeze and reshape test and prediction data to 2d arrays
     test_squeezed = np.squeeze(test)
@@ -290,7 +293,6 @@ def evaluate_model(train, test, n_input, n_output, scaler_target):
     return score, scores, pred_2d
 
 
-# buggy in here too
 def plot_results(data_test):
     """
     Creates and saves a comparison plot of ground truth and predictions over time.
@@ -298,7 +300,7 @@ def plot_results(data_test):
     :param data_test: dataframe of observed and predicted values
     :return: None
     """
-    print(data_test.head())
+    print("Plotting results...")
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(15, 15), facecolor='w', edgecolor='k', sharex=True)
     fig.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.15)
     data_test.plot(x='Time', y='WVHT', color='blue', label='NOAA Measurement', ax=ax1)
@@ -344,19 +346,25 @@ def plot_results(data_test):
 if __name__ == "__main__":
     # identify number of inputs and outputs
     n_input, n_output = 9, 3
+
     # prepare the dataset
     dataset = prep_data('../training_data/41013_lt_clean.csv')  # change this filename when we successfully scrape new
+
     # split the dataset
     train, test, scaler, split_idx, split_idx_up = split_dataset(dataset, n_output)
+
     # run the model training and capture results
     score, scores, pred_2d = evaluate_model(train, test, n_input, n_output, scaler)
-    # buggy here
+
+    # create dataset with ground truth values
     data_test = dataset.iloc[split_idx:split_idx_up]
-    print(data_test.head())
-    data_test['WVHT_LSTM'] = pred_2d[:, 0]
-    data_test['APD_LSTM'] = pred_2d[:, 1]
-    data_test['MWD_LSTM'] = pred_2d[:, 2]
-    print(data_test.head())
+    # add columns for predicted values
+    data_test = data_test.assign(WVHT_LSTM=pred_2d[:, 0])
+    data_test = data_test.assign(APD_LSTM=pred_2d[:, 1])
+    data_test = data_test.assign(MWD_LSTM=pred_2d[:, 2])
+    data_test = data_test.reset_index()
+    # plot results
     plot_results(data_test)
+
     # summarize results for user
     summarize_scores('lstm', score, scores)
