@@ -14,7 +14,6 @@ from tensorflow.keras import backend, regularizers
 from tensorflow.python.keras.layers import ConvLSTM2D, Flatten, RepeatVector, LSTM, TimeDistributed, Dense
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.optimizer_v2.adam import Adam
-from tensorflow.python.keras.utils.vis_utils import plot_model
 
 dpi = 300
 matplotlib.rc("savefig", dpi=dpi)
@@ -216,8 +215,6 @@ def build_model(train, n_input, n_output):
     model.compile(loss='mse', optimizer=opt,
                   metrics=['accuracy', mse, r_square, rmse])
     model.summary()
-    # theres a bug here...something that PyCharm doesn't like. Is a plot of the model really needed??
-    # plot_model(model, show_shapes=True, show_layer_names=True, to_file='../model/model.png')
 
     print("Fitting model...")
     # fit the model and capture history of performance
