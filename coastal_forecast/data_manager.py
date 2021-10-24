@@ -1,11 +1,12 @@
 # Created by Andrew Davison
 # Used to scrape and clean the training_data for use in model
 import csv
-import datetime
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import requests
+from numpy import timedelta64
 
 
 def hello():
@@ -31,7 +32,7 @@ def get_request(url: str) -> list:
     return data_list
 
 
-def fetch_lt_data(station_id: str = '41013') -> None:
+def fetch_lt_data(station_id: str) -> None:
     """
     Fetches long term data from specific NOAA station and prepares data for ML model training.
 
@@ -39,18 +40,22 @@ def fetch_lt_data(station_id: str = '41013') -> None:
     :return: None
     """
     # create a list of the past five available years
-    years = [datetime.datetime.today().year - x - 1 for x in range(5)]
+    years = [datetime.today().year - x - 1 for x in range(5)]
+    # years = [datetime.today().year - x - 1 for x in range(2)]
 
     # unpack returned results from helper function
     year_one, year_two, year_three, year_four, year_five = fetch_lt_data_helper(station_id, years)
+    # year_one, year_two = fetch_lt_data_helper(station_id, years)
 
     # set returned results to dataframes list and combine
     dataframes = [year_one, year_two, year_three, year_four, year_five]
+    # dataframes = [year_one, year_two]
     lt_data = pd.concat(dataframes)
 
     # clean the dataset and save for model training
-    cleaned_dataset = clean_data(lt_data)
-    cleaned_dataset.to_csv(f'../training_data/{station_id}_lt_clean.csv')  # noqa
+    save_lt_data(lt_data, station_id)
+    # cleaned_dataset = clean_data(lt_data)
+    # cleaned_dataset.to_csv(f'../training_data/{station_id}_lt_clean.csv')  # noqa
 
 
 def fetch_lt_data_helper(station_id: str, years: list) -> pd.DataFrame:
@@ -106,6 +111,56 @@ def fetch_data(station_id: str) -> pd.DataFrame:
     return clean_data(data)
 
 
+def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
+    """
+    Cleans and saves long term data to csv file for later model training.
+
+    :param data: dataframe of long term data.
+    :param station_id: string of NOAA station identification number.
+    :return: None
+    """
+    column_names_kept = ['YY', 'MM', 'DD', 'hh', 'mm', 'WDIR', 'WSPD', 'GST', 'WVHT', 'DPD', 'APD', 'MWD', 'PRES',
+                         'ATMP', 'WTMP', 'DEWP']
+    column_drops = ['MM', 'DD', 'YY', 'hh', 'mm', 'Datetime']
+    columns = ['Time', 'WDIR', 'WSPD', 'GST', 'WVHT', 'DPD', 'APD', 'MWD', 'PRES', 'ATMP', 'WTMP', 'DEWP']
+
+    # preprocesses data with columns from columns list
+    data = preprocess_data(data, column_names_kept, column_drops)
+
+    # set numerical values to floats
+    for col in columns[1:]:
+        data.loc[:, col] = data.loc[:, col].astype(float)
+
+    # replace bad data with NaN
+    data = data.replace({'WDIR': 999, 'WSPD': 99, 'GST': 99,
+                         'WVHT': 99, 'APD': 99, 'DPD': 99, 'MWD': 999,
+                         'PRES': 9999, 'ATMP': 999, 'WTMP': 999, 'DEWP': 999}, np.nan)
+
+    # reduces dataframe to good values of wave height
+    data = data[data['WVHT'].notna()]
+
+    # pad all NaN values
+    null_columns = ['WDIR', 'WSPD', 'GST', 'WVHT', 'APD', 'DPD', 'MWD', 'PRES', 'ATMP', 'WTMP', 'DEWP']
+    for col in null_columns:
+        data.loc[:, col].fillna(method='pad', inplace=True)
+
+    # resample data by every hour and reset indexing
+    data_sampled = data.set_index('Time').resample('60T').pad()
+    data_sampled.reset_index(inplace=True)
+
+    # mask first record from dataset and reset dataframe
+    mask = data_sampled['Time'] >= f'{datetime.today().year - 5}-01-01 01:00:00'
+    data_sampled = data_sampled.loc[mask]
+    data_sampled.reset_index(inplace=True, drop=True)
+
+    # rearrange columns
+    column_finals = ['Time', 'WDIR', 'WSPD', 'GST', 'PRES', 'ATMP', 'WTMP', 'DEWP', 'WVHT', 'DPD', 'APD', 'MWD']
+    data_sampled = data_sampled[column_finals]
+
+    # save data to csv file without indexes
+    data_sampled.to_csv(f'../training_data/{station_id}_lt_clean.csv', index=False)
+
+
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     """
     Preprocess cleaning of data for use in a trained ML model.
@@ -118,26 +173,8 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     column_drops = ['MM', 'DD', 'YY', 'hh', 'mm', 'Datetime']
     column_finals = ['Time', 'WDIR', 'WSPD', 'PRES', 'WVHT', 'APD', 'MWD']
 
-    # keep required columns
-    data = data.loc[:, column_names_kept]
+    data = preprocess_data(data, column_names_kept, column_drops)
 
-    # set date/time columns to strings
-    for name in ['YY', 'MM', 'DD', 'hh', 'mm']:
-        data.loc[:, name] = data.loc[:, name].astype(str).str.zfill(2)
-
-    # create Datetime column for data and format to year, month, day, hours, minutes
-    data.loc[:, 'Datetime'] = data.loc[:, 'YY'] + data.loc[:, 'MM'] + data.loc[:, 'DD'] + data.loc[:, 'hh'] + data.loc[
-                                                                                                              :, 'mm']
-    data.loc[:, 'Time'] = pd.to_datetime(data.loc[:, 'Datetime'].astype(str), format='%Y%m%d%H%M')
-
-    # drop not required columns and move Time column to first position followed by all other columns
-    data.drop(column_drops, inplace=True, axis=1)
-    data = data[['Time'] + [col for col in data.columns if col != 'Time']]
-
-    # sort Time column in ascending order, earliest time to present
-    data = data.sort_values('Time')
-
-    # drop WVHT columns marked with 'MM', replace all other 'MM' occurances to NaN
     data.drop(data[data.loc[:, 'WVHT'] == 'MM'].index, inplace=True)
     data = data.replace('MM', np.nan)
 
@@ -158,6 +195,38 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     return data_sampled
 
 
-# if __name__ == "__main__":
+def preprocess_data(data: pd.DataFrame, columns_kept: list, columns_drop: list) -> pd.DataFrame:
+    """
+    Preprocessing data step to consolidate columns to a time column and sort and reindex dataframe.
+
+    :param data: dataframe to be preprocessed
+    :param columns_kept: columns to keep in the dataframe
+    :param columns_drop: columns to drop in the dataframe
+    :return: preprocessed dataframe
+    """
+    # keep required columns
+    data = data.loc[:, columns_kept]
+
+    # set date/time columns to strings
+    for name in ['YY', 'MM', 'DD', 'hh', 'mm']:
+        data.loc[:, name] = data.loc[:, name].astype(str).str.zfill(2)
+
+    # create Datetime column for data and format to year, month, day, hours, minutes
+    data.loc[:, 'Datetime'] = data.loc[:, 'YY'] + data.loc[:, 'MM'] + data.loc[:, 'DD'] + data.loc[:, 'hh'] + data.loc[
+                                                                                                              :, 'mm']
+    data.loc[:, 'Time'] = pd.to_datetime(data.loc[:, 'Datetime'].astype(str), format='%Y%m%d%H%M')
+
+    # drop not required columns and move Time column to first position followed by all other columns
+    data.drop(columns_drop, inplace=True, axis=1)
+    data = data[['Time'] + [col for col in data.columns if col != 'Time']]
+
+    # sort Time column in ascending order, earliest time to present
+    data = data.sort_values('Time')
+
+    return data
+
+
+if __name__ == "__main__":
     # fetch_data('41013')
-    # fetch_lt_data()
+    for station in ['41008', '41009', '41013', '44013']:
+        fetch_lt_data(station)
