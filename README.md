@@ -30,7 +30,7 @@ For using TensorFlow with a GPU, refer to the [TensorFlow documentation](https:/
 on the topic, specifically the section on [device placement](https://www.tensorflow.org/guide/gpu#manual_device_placement).
 
 ### Installing Packages from requirements.txt
-* In the terminal command line, enter &ensp;pip install -r requirements.txt
+* In the terminal command line, enter:<br/>&ensp;pip install -r requirements.txt
 
 ## Starting/Running the Server
 * Running <b>run.py</b> will activate the Flask server
