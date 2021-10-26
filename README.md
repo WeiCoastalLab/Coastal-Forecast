@@ -2,7 +2,12 @@
 Web-based application to host a trained coastal forecast machine learning model.
 
 ## Setup and Starting of Virtual Environment
-### Install TensorFlow
+### TensorFlow
+Anaconda makes it easy to install TensorFlow, enabling data science, machine learning, and artificial intelligence workflows.
+TensorFlow with conda is supported on 64-bit Windows 7 or later, 64-bit Ubuntu Linux 14.04 or later, 64-bit CentOS Linux 6 or 
+later, and macOS 10.10 or later.
+
+### Installing TensorFlow
 1) Download and install [Anaconda](https://www.anaconda.com/products/individual) 
 or [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
 2) On Windows open the Start menu and open an Anaconda Command Prompt. On macOS or 
@@ -24,7 +29,7 @@ The environment will be activated, and you should see the environment variable i
 For using TensorFlow with a GPU, refer to the [TensorFlow documentation](https://www.tensorflow.org/guide/gpu) 
 on the topic, specifically the section on [device placement](https://www.tensorflow.org/guide/gpu#manual_device_placement).
 
-### Install Packages from requirements.txt
+### Installing Packages from requirements.txt
 * In the terminal command line, enter &ensp;pip install -r requirements.txt
 
 ## Starting/Running the Server
