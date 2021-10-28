@@ -1,12 +1,11 @@
 # Created by Andrew Davison
-# Used to scrape and clean the training_data for use in model
+# Used to scrape and clean long term training_data and short term data for use in model training and predictions
 import csv
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import requests
-from numpy import timedelta64
 
 
 def hello():
@@ -41,21 +40,16 @@ def fetch_lt_data(station_id: str) -> None:
     """
     # create a list of the past five available years
     years = [datetime.today().year - x - 1 for x in range(5)]
-    # years = [datetime.today().year - x - 1 for x in range(2)]
 
     # unpack returned results from helper function
     year_one, year_two, year_three, year_four, year_five = fetch_lt_data_helper(station_id, years)
-    # year_one, year_two = fetch_lt_data_helper(station_id, years)
 
     # set returned results to dataframes list and combine
     dataframes = [year_one, year_two, year_three, year_four, year_five]
-    # dataframes = [year_one, year_two]
     lt_data = pd.concat(dataframes)
 
     # clean the dataset and save for model training
     save_lt_data(lt_data, station_id)
-    # cleaned_dataset = clean_data(lt_data)
-    # cleaned_dataset.to_csv(f'../training_data/{station_id}_lt_clean.csv')  # noqa
 
 
 def fetch_lt_data_helper(station_id: str, years: list) -> pd.DataFrame:
@@ -90,6 +84,7 @@ def fetch_lt_data_helper(station_id: str, years: list) -> pd.DataFrame:
         yield data
 
 
+# refactoring needed for new clean short term data with the proper columns for model
 def fetch_data(station_id: str) -> pd.DataFrame:
     """
     Fetches short term data from specific NOAA station and prepares data for ML model.
@@ -161,6 +156,7 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     data_sampled.to_csv(f'../training_data/{station_id}_lt_clean.csv', index=False)
 
 
+# used for cleaning short term data, might need to be refactored
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     """
     Preprocess cleaning of data for use in a trained ML model.
@@ -195,13 +191,14 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     return data_sampled
 
 
+# preprocesses dataframe to index by timestamp, should be good
 def preprocess_data(data: pd.DataFrame, columns_kept: list, columns_drop: list) -> pd.DataFrame:
     """
     Preprocessing data step to consolidate columns to a time column and sort and reindex dataframe.
 
     :param data: dataframe to be preprocessed
-    :param columns_kept: columns to keep in the dataframe
-    :param columns_drop: columns to drop in the dataframe
+    :param columns_kept: list of columns to keep in the dataframe
+    :param columns_drop: list of columns to drop in the dataframe
     :return: preprocessed dataframe
     """
     # keep required columns
