@@ -28,6 +28,7 @@ def get_request(url: str) -> list:
         for item in cr:
             list_item = [words for segments in item for words in segments.split()]
             data_list.append(list_item)
+
     return data_list
 
 
@@ -81,6 +82,7 @@ def fetch_lt_data_helper(station_id: str, years: list) -> pd.DataFrame:
         data_list = get_request(url)
         # set pulled data as dataframe and return
         data = pd.DataFrame(data_list[2:], columns=column_names)
+
         yield data
 
 
@@ -101,8 +103,10 @@ def fetch_data(station_id: str) -> pd.DataFrame:
 
     # pull data from url
     data_list = get_request(url)
+
     # set pulled data as a dataframe and return cleaned data
     data = pd.DataFrame(data_list[2:], columns=column_names)
+
     return clean_data(data)
 
 
@@ -187,7 +191,6 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     data_sampled = data.set_index('Time').resample('60T').pad()
     data_sampled.reset_index(inplace=True)
 
-    # return prepped data
     return data_sampled
 
 

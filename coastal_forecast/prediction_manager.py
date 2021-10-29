@@ -1,16 +1,13 @@
 # Created by Andrew Davison
 # Will be used to call the model and make predictions
-import datetime
 import pickle
 
-import numpy
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from numpy import array, split
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras import backend
-from tensorflow.python.keras.models import load_model
+from tensorflow.python.keras.models import load_model, Sequential
 
 from coastal_forecast.data_manager import fetch_data
 from coastal_forecast.results_manager import plot_results
@@ -22,7 +19,7 @@ def hello():
 
 # Custom loss functions, credit: https://github.com/keras-team/keras/issues/7947
 # root mean squared error (rmse) for regression
-def rmse(y_true, y_pred):
+def rmse(y_true: np.array, y_pred: np.array) -> float:
     """
     Calculates RMSE.
 
@@ -34,7 +31,7 @@ def rmse(y_true, y_pred):
 
 
 # mean squared error (mse) for regression
-def mse(y_true, y_pred):
+def mse(y_true: np.array, y_pred: np.array) -> float:
     """
     Calculates MSE.
 
@@ -46,7 +43,7 @@ def mse(y_true, y_pred):
 
 
 # coefficient of determination (R^2) for regression
-def r_square(y_true, y_pred):
+def r_square(y_true: np.array, y_pred: np.array) -> float:
     """
     Calculates R^2.
 
@@ -59,7 +56,7 @@ def r_square(y_true, y_pred):
     return 1 - ssr / (sst + backend.epsilon())
 
 
-def r_square_loss(y_true, y_pred):
+def r_square_loss(y_true: np.array, y_pred: np.array) -> float:
     """
     Calculates R^2 loss.
 
@@ -72,7 +69,7 @@ def r_square_loss(y_true, y_pred):
     return 1 - (1 - ssr / (sst + backend.epsilon()))
 
 
-def forecast(model, history, n_inputs):
+def forecast(model: Sequential, history: list, n_inputs: int) -> np.array:
     """
     Conducts forecasting with the trained ML model on test data.
 
@@ -84,16 +81,27 @@ def forecast(model, history, n_inputs):
     # flatten training_data
     data = array(history)
     data = data.reshape((data.shape[0] * data.shape[1], data.shape[2]))
+
     # retrieve last observations for input
     input_x = data[-n_inputs:, :]
     n_features = input_x.shape[1]
-    # reshape into [1, 1, 1, 9, 9]
+
+    # reshape into [sample, time-step, row, cols, features]
     input_x = input_x.reshape((1, 1, 1, len(input_x), n_features))
     y_hat = model.predict(input_x, verbose=0)
+
     return y_hat
 
 
-def get_prediction(station_id, inputs, outputs):
+def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
+    """
+    Scrapes new data from NOAA station and runs a new short term prediction for display in the application.
+
+    :param station_id: string of NOAA station identification number.
+    :param n_inputs: number of inputs for trained model.
+    :param n_outputs: number of outputs from trained model.
+    :return: None
+    """
     dataset = fetch_data(station_id)
     print('\nBack in get_prediction()...')
     print(dataset.info())
@@ -108,18 +116,18 @@ def get_prediction(station_id, inputs, outputs):
     print(model.summary())
     data = dataset.drop('Time', axis=1)
     test = data.to_numpy()
-    with open('../model/scalars.pkl', 'rb') as f:
-        scalar_input, scalar_target = pickle.load(f)
-    data_scaled = scalar_input.fit_transform(test[:, :-3])
-    target_scaled = scalar_target.fit_transform(test[:, -3:])
+    with open('../model/scalers.pkl', 'rb') as f:
+        scaler_input, scaler_target = pickle.load(f)
+    data_scaled = scaler_input.fit_transform(test[:, :-n_outputs])
+    target_scaled = scaler_target.fit_transform(test[:, -n_outputs:])
     data_scaled = np.column_stack((data_scaled, target_scaled))
     print(data.head())
-    n_times = (dataset.shape[0] // outputs) - 1
-    index_inuse = n_times * outputs
+    n_times = (dataset.shape[0] // n_outputs) - 1
+    index_inuse = n_times * n_outputs
     data_split = array(split(data_scaled[-index_inuse:], n_times))
     test_1st = data_split[:len(data_split) - 10]
     test_2nd = data_split[-10:]
-    actual_test = dataset.iloc[-10*outputs:]
+    actual_test = dataset.iloc[-10 * n_outputs:]
 
     history = [x for x in test_1st]
     predictions = []
@@ -129,14 +137,14 @@ def get_prediction(station_id, inputs, outputs):
         history.append(test_2nd[i, :])
     predictions = array(predictions)
 
-    post_processing(test_2nd, predictions, scalar_target, actual_test, station_id, inputs, outputs)
+    post_processing(test_2nd, predictions, scaler_target, actual_test, station_id, n_inputs, n_outputs)
     
 
 def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardScaler,
                     actual_test: pd.DataFrame, station_id: str, n_inputs: int,
                     n_outputs: int, training: bool = False) -> (np.array, np.array) or None:
     """
-    Conducts post processing of prediction data.
+    Conducts post processing of prediction data and sends to plot results in results_manager.
 
     :param y_true: array of ground truth values.
     :param y_pred: array of predicted values.
@@ -153,7 +161,7 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
     truth_2d = truth_squeezed.reshape((truth_squeezed.shape[0] * truth_squeezed.shape[1], truth_squeezed.shape[2]))
     pred_2d = pred_squeezed.reshape((pred_squeezed.shape[0] * pred_squeezed.shape[1], pred_squeezed.shape[2]))
     
-    truth_2d = scalar_target.inverse_transform(truth_2d[:, 3:])
+    truth_2d = scalar_target.inverse_transform(truth_2d[:, -n_outputs:])
     pred_2d = scalar_target.inverse_transform(pred_2d)
 
     actual_test = actual_test.assign(WVHT_LSTM=pred_2d[:, 0])
