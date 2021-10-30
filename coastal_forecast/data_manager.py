@@ -138,10 +138,10 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     # reduces dataframe to good values of wave height
     data = data[data['WVHT'].notna()]
 
-    # pad all NaN values
+    # replace all NaN values with median value of the column
     null_columns = ['WDIR', 'WSPD', 'GST', 'WVHT', 'APD', 'DPD', 'MWD', 'PRES', 'ATMP', 'WTMP', 'DEWP']
     for col in null_columns:
-        data.loc[:, col].fillna(method='pad', inplace=True)
+        data.loc[:, col].fillna(data[col].median(), inplace=True)  # method='pad', inplace=True)
 
     # resample data by every hour and reset indexing
     data_sampled = data.set_index('Time').resample('60T').pad()
@@ -155,9 +155,12 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     # rearrange columns
     column_finals = ['Time', 'WDIR', 'WSPD', 'GST', 'PRES', 'ATMP', 'WTMP', 'DEWP', 'WVHT', 'DPD', 'APD', 'MWD']
     data_sampled = data_sampled[column_finals]
-
+    #
+    # print(data_sampled.info())
+    # print(data_sampled['DEWP'].head(20))
+    # quit()
     # save data to csv file without indexes
-    data_sampled.to_csv(f'../training_data/{station_id}_lt_clean.csv', index=False)
+    data_sampled.to_csv(f'../training_data/{station_id}_lt_clean2.csv', index=False)
 
 
 # used for cleaning short term data, might need to be refactored
@@ -227,6 +230,7 @@ def preprocess_data(data: pd.DataFrame, columns_kept: list, columns_drop: list) 
 
 
 if __name__ == "__main__":
+    fetch_lt_data('41008')
     # fetch_data('41013')
-    for station in ['41008', '41009', '41013', '44013']:
-        fetch_lt_data(station)
+    # for station in ['41008', '41009', '41013', '44013']:
+    #     fetch_lt_data(station)
