@@ -93,6 +93,25 @@ def forecast(model: Sequential, history: list, n_inputs: int) -> np.array:
     return y_hat
 
 
+def scale_data(data: np.array, n_outputs: int) -> (np.array, StandardScaler):
+    """
+    Scales the data using a Standard Scaler. Scales predictors and targets separately.
+
+    :param data: array of data to be scaled.
+    :param n_outputs: number of outputs from model.
+    :return: tuple of scaled array and target scaler.
+    """
+    # instantiate scaler instances
+    input_scaler = StandardScaler()
+    target_scaler = StandardScaler()
+
+    # scale predictors and targets
+    data_scaled = input_scaler.fit_transform(data[:, :-n_outputs])
+    target_scaled = target_scaler.fit_transform(data[:, -n_outputs:])
+
+    return np.column_stack((data_scaled, target_scaled)), target_scaler
+
+
 def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     """
     Scrapes new data from NOAA station and runs a new short term prediction for display in the application.
@@ -114,20 +133,18 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
 
     model = load_model('../model/model.h5', custom_objects=dependencies)
     print(model.summary())
-    data = dataset.drop('Time', axis=1)
-    test = data.to_numpy()
-    with open('../model/scalers.pkl', 'rb') as f:
-        scaler_input, scaler_target = pickle.load(f)
-    data_scaled = scaler_input.fit_transform(test[:, :-n_outputs])
-    target_scaled = scaler_target.fit_transform(test[:, -n_outputs:])
-    data_scaled = np.column_stack((data_scaled, target_scaled))
+    dataset = dataset.drop('Time', axis=1)
+    data = dataset.to_numpy()
+
+    # scale the data
+    data_scaled, target_scaler = scale_data(data, n_outputs)
     print(data.head())
     n_times = (dataset.shape[0] // n_outputs) - 1
     index_inuse = n_times * n_outputs
     data_split = array(split(data_scaled[-index_inuse:], n_times))
     test_1st = data_split[:len(data_split) - 10]
     test_2nd = data_split[-10:]
-    actual_test = dataset.iloc[-10 * n_outputs:]
+    ground_truth = dataset.iloc[-10 * n_outputs:]
 
     history = [x for x in test_1st]
     predictions = []
@@ -137,11 +154,11 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
         history.append(test_2nd[i, :])
     predictions = array(predictions)
 
-    post_processing(test_2nd, predictions, scaler_target, actual_test, station_id, n_inputs, n_outputs)
+    post_processing(test_2nd, predictions, target_scaler, ground_truth, station_id, n_inputs, n_outputs)
     
 
 def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardScaler,
-                    actual_test: pd.DataFrame, station_id: str, n_inputs: int,
+                    ground_truth: pd.DataFrame, station_id: str, n_inputs: int,
                     n_outputs: int, training: bool = False) -> (np.array, np.array) or None:
     """
     Conducts post processing of prediction data and sends to plot results in results_manager.
@@ -149,7 +166,7 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
     :param y_true: array of ground truth values.
     :param y_pred: array of predicted values.
     :param scalar_target: StandardScaler for inverse transformation of data
-    :param actual_test: dataframe of truth values.
+    :param ground_truth: dataframe of truth values.
     :param station_id: string of NOAA station identification number.
     :param n_inputs: number of inputs used for model.
     :param n_outputs: number of outputs from model.
@@ -164,15 +181,17 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
     truth_2d = scalar_target.inverse_transform(truth_2d[:, -n_outputs:])
     pred_2d = scalar_target.inverse_transform(pred_2d)
 
-    actual_test = actual_test.assign(WVHT_LSTM=pred_2d[:, 0])
-    actual_test = actual_test.assign(APD_LSTM=pred_2d[:, 1])
-    actual_test = actual_test.assign(MWD_LSTM=pred_2d[:, 2])
-    actual_test = actual_test.reset_index()
+    # add predictions to ground truth dataframe
+    ground_truth = ground_truth.assign(WVHT_LSTM=pred_2d[:, 0])
+    ground_truth = ground_truth.assign(APD_LSTM=pred_2d[:, 1])
+    ground_truth = ground_truth.assign(MWD_LSTM=pred_2d[:, 2])
+    ground_truth = ground_truth.reset_index()
     if training is True:
-        plot_results(actual_test, station_id, f'../model/{station_id}_pred_results.png', n_inputs, n_outputs, training)
+        plot_results(ground_truth, station_id, f'../model/results/{station_id}_pred_results.png',
+                     n_inputs, n_outputs, training)
         return truth_2d, pred_2d
     else:
-        plot_results(actual_test, station_id, f'static/{station_id}_system_prediction_.png', n_inputs, n_outputs)
+        plot_results(ground_truth, station_id, f'static/{station_id}_system_prediction_.png', n_inputs, n_outputs)
 
 
 if __name__ == '__main__':
