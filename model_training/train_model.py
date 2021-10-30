@@ -14,7 +14,7 @@ from tensorflow.python.keras.layers import ConvLSTM2D, Flatten, RepeatVector, LS
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.optimizer_v2.adam import Adam
 
-from coastal_forecast.prediction_manager import mse, r_square, rmse, forecast, post_processing
+from coastal_forecast.prediction_manager import mse, r_square, rmse, forecast, post_processing, scale_data
 
 
 def prep_data(filepath: str) -> pd.DataFrame:
@@ -44,24 +44,21 @@ def split_dataset(dataset: pd.DataFrame, station_id: str, n_outputs: int) \
     print("Splitting data...")
     data = dataset.to_numpy()
 
-    # define the scalar
-    scaler_input = StandardScaler()
-    scaler_target = StandardScaler()
-    data_scaled = scaler_input.fit_transform(data[:, :-n_outputs])
-    target_scaled = scaler_target.fit_transform(data[:, -n_outputs:])
-    with open(f'../model/scalers.pkl', 'wb') as scaler_f:
-        pickle.dump([scaler_input, scaler_target], scaler_f)
-    data_scaled = np.column_stack((data_scaled, target_scaled))
+    # scale the data
+    data_scaled, target_scaler = scale_data(data, n_outputs)
 
     # split into train and test
-    split_idx = 38304
+    split_idx = 38304  # ###### perhaps not have this hard coded, ask about having this as a percentage of the length of the dataset
     n_times = (dataset.shape[0] - split_idx) // n_outputs
-    split_idx_up = split_idx + n_times * n_outputs
+    split_idx_up = split_idx + n_times * n_outputs  # this and the line above are technically equivalent, split_idx_up is not needed
     train, test = data_scaled[:split_idx], data_scaled[split_idx:split_idx_up]
-    data_test = dataset.iloc[split_idx:split_idx_up]
+    ground_truth = dataset.iloc[split_idx:split_idx_up]
+
+    # train, test = data_scaled[:split_idx], data_scaled[split_idx:]
+    # ground_truth = dataset.iloc[split_idx:]
     train, test = array(split(train, len(train) / n_outputs)), array(split(test, len(test) / n_outputs))
 
-    return train, test, data_test, scaler_target
+    return train, test, ground_truth, target_scaler
 
 
 def evaluate_forecasts(actual: np.array, predicted: np.array) -> (float, list[float]):
@@ -102,7 +99,7 @@ def summarize_scores(name: str, score: float, scores: list[float]) -> None:
     :return: None
     """
     s_scores = ', '.join(['%.1f' % s for s in scores])
-    print('{}: [{:.3f}] {}'.format(name, score, s_scores))
+    print('{}: Overall - [{:.3f}], RMSE(WVHT, APD, MWD) - {}'.format(name, score, s_scores))
 
 
 def to_supervised(train: np.array, n_inputs: int, n_outputs: int) -> (np.array, np.array):
@@ -178,25 +175,6 @@ def build_model(train_x: np.array, train_y: np.array, n_inputs: int, n_outputs: 
     opt = Adam(learning_rate=0.001)
     model.compile(loss='mse', optimizer=opt,
                   metrics=['accuracy', mse, r_square, rmse])
-
-    # old model architecture
-    # model.add(ConvLSTM2D(10, (1, 9), activation='relu',
-    #                      kernel_initializer='he_normal',
-    #                      kernel_regularizer=regularizers.l2(l=0.01),
-    #                      input_shape=(1, 1, n_inputs, n_features),
-    #                      name="ConvLSTM2D_Layer"))
-    # model.add(Flatten(name="Flatten_Op"))
-    # model.add(RepeatVector(n_outputs, name="RepeatVector_Op"))
-    # model.add(LSTM(20, activation='relu',
-    #                return_sequences=True,
-    #                name="LSTM_Layer"))
-    # model.add(TimeDistributed(Dense(10, activation='relu',
-    #                                 name="Dense_Layer"),
-    #                           name="TimeDistributed_Op1"))
-    # model.add(TimeDistributed(Dense(n_outputs, name="Output_Layer")))
-    # opt = Adam(learning_rate=0.001)
-    # model.compile(loss='mse', optimizer=opt,
-    #               metrics=['accuracy', mse, r_square, rmse])
     model.summary()
 
     # fit the model and capture history of performance
@@ -255,7 +233,7 @@ def train_model(station_id: str, n_inputs: int, n_outputs: int) -> None:
     dataset = prep_data(f'../training_data/{station_id}_lt_clean.csv')
 
     # split the data into train and test sets, will need the unscaled ground truths and scaler for the targets
-    train, test, data_test, scaler_target = split_dataset(dataset, station_id, n_outputs)
+    train, test, ground_truth, target_scaler = split_dataset(dataset, station_id, n_outputs)
 
     # split the training set into predictor and response variable datasets
     train_x, train_y = to_supervised(train, n_inputs, n_outputs)
@@ -267,7 +245,7 @@ def train_model(station_id: str, n_inputs: int, n_outputs: int) -> None:
     predictions = run_predictions(model, train, test, n_inputs)
 
     # post processing to prep for plotting results
-    test_2d, pred_2d = post_processing(test, predictions, scaler_target, data_test,
+    test_2d, pred_2d = post_processing(test, predictions, target_scaler, ground_truth,
                                        station_id, n_inputs, n_outputs, True)
 
     # summarize results from training
@@ -277,7 +255,8 @@ def train_model(station_id: str, n_inputs: int, n_outputs: int) -> None:
 
 # this will eventually be moved to the system timer file, where we can run annually, for now leave as a runnable script
 if __name__ == "__main__":
-    stations = ['41013']  # '41008', '41009', '41013', '44013']
-    stations = ['41008', '41009', '44013']
+    # stations = ['41013']  # '41008', '41009', '41013', '44013']
+    stations = ['44013']  # , '41009', '44013']
     for station in stations:
+        print(f'\nBeginning training for station {station}...')
         train_model(station, 9, 3)
