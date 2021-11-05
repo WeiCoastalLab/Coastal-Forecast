@@ -15,6 +15,7 @@ from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.optimizer_v2.adam import Adam
 
 from coastal_forecast.prediction_manager import mse, r_square, rmse, forecast, post_processing, scale_data
+from coastal_forecast.data_manager import fetch_lt_data
 
 
 def prep_data(filepath: str) -> pd.DataFrame:
@@ -157,7 +158,7 @@ def build_model(train_x: np.array, train_y: np.array, n_inputs: int, n_outputs: 
     train_X, val_X, train_Y, val_Y = train_test_split(train_x, train_y, test_size=0.15, random_state=42)  # noqa
 
     # build the model
-    model = Sequential()  # this is NOW the same model as used in the manuscript
+    model = Sequential()
     model.add(ConvLSTM2D(50, (1, 3), activation='relu',
                          kernel_initializer='he_normal',
                          kernel_regularizer=regularizers.l2(l=0.01),
@@ -175,7 +176,7 @@ def build_model(train_x: np.array, train_y: np.array, n_inputs: int, n_outputs: 
     opt = Adam(learning_rate=0.001)
     model.compile(loss='mse', optimizer=opt,
                   metrics=['accuracy', mse, r_square, rmse])
-    model.summary()
+    model.summary(line_length=75)
 
     # fit the model and capture history of performance
     print("Fitting model...")
@@ -229,6 +230,9 @@ def train_model(station_id: str, n_inputs: int, n_outputs: int) -> None:
     :param n_outputs: number of outputs to predict.
     :return: None
     """
+    # fetch new long term data
+    fetch_lt_data(station_id)
+
     # prepare the data for training
     dataset = prep_data(f'../training_data/{station_id}_lt_clean.csv')
 
@@ -253,10 +257,9 @@ def train_model(station_id: str, n_inputs: int, n_outputs: int) -> None:
     summarize_scores('LSTM', score, scores)
 
 
-# this will eventually be moved to the system timer file, where we can run annually, for now leave as a runnable script
 if __name__ == "__main__":
-    # stations = ['41013']  # '41008', '41009', '41013', '44013']
-    stations = ['44013']  # , '41009', '44013']
+    stations = ['41008', '41009', '41013', '44013']
     for station in stations:
-        print(f'\nBeginning training for station {station}...')
+        print(f'Beginning training for station {station}...')
         train_model(station, 9, 3)
+        print()
