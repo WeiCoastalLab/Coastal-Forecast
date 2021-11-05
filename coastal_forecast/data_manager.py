@@ -160,7 +160,7 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     # print(data_sampled['DEWP'].head(20))
     # quit()
     # save data to csv file without indexes
-    data_sampled.to_csv(f'../training_data/{station_id}_lt_clean2.csv', index=False)
+    data_sampled.to_csv(f'../training_data/{station_id}_lt_clean.csv', index=False)
 
 
 # used for cleaning short term data, might need to be refactored
