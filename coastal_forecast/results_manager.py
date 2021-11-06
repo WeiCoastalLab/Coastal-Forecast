@@ -1,5 +1,5 @@
 # Created by Andrew Davison
-# Process results to be displayed on the page and stored in database
+# Process training_results to be displayed on the page and stored in database
 import matplotlib
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -33,7 +33,7 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str,
     :param training: boolean for if training prediction plot or short term system plot, default to False.
     :return: None
     """
-    print("Plotting results...")
+    print("Plotting training_results...")
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(15, 15), facecolor='w', edgecolor='k', sharex='all')
     fig.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.15)
     results.plot(x='Time', y='WVHT', color='blue', label='NOAA Measurement', ax=ax1)

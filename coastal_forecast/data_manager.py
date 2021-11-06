@@ -42,10 +42,10 @@ def fetch_lt_data(station_id: str) -> None:
     # create a list of the past five available years
     years = [datetime.today().year - x - 1 for x in range(5)]
 
-    # unpack returned results from helper function
+    # unpack returned training_results from helper function
     year_one, year_two, year_three, year_four, year_five = fetch_lt_data_helper(station_id, years)
 
-    # set returned results to dataframes list and combine
+    # set returned training_results to dataframes list and combine
     dataframes = [year_one, year_two, year_three, year_four, year_five]
     lt_data = pd.concat(dataframes)
 
@@ -84,30 +84,6 @@ def fetch_lt_data_helper(station_id: str, years: list) -> pd.DataFrame:
         data = pd.DataFrame(data_list[2:], columns=column_names)
 
         yield data
-
-
-# refactoring needed for new clean short term data with the proper columns for model
-def fetch_data(station_id: str) -> pd.DataFrame:
-    """
-    Fetches short term data from specific NOAA station and prepares data for ML model.
-
-    :param station_id: NOAA station to fetch data from.
-    :return: pandas DataFrame of prepared data.
-    """
-    # set url for the requested station data
-    url = f'https://www.ndbc.noaa.gov/data/realtime2/{station_id}.txt'
-
-    # identify columns for dataframe
-    column_names = ['YY', 'MM', 'DD', 'hh', 'mm', 'WDIR', 'WSPD', 'GST', 'WVHT', 'DPD', 'APD', 'MWD', 'PRES', 'ATMP',
-                    'WTMP', 'DEWP', 'VIS', 'PTDY', 'TIDE']
-
-    # pull data from url
-    data_list = get_request(url)
-
-    # set pulled data as a dataframe and return cleaned data
-    data = pd.DataFrame(data_list[2:], columns=column_names)
-
-    return clean_data(data)
 
 
 def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
@@ -155,12 +131,33 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     # rearrange columns
     column_finals = ['Time', 'WDIR', 'WSPD', 'GST', 'PRES', 'ATMP', 'WTMP', 'DEWP', 'WVHT', 'DPD', 'APD', 'MWD']
     data_sampled = data_sampled[column_finals]
-    #
-    # print(data_sampled.info())
-    # print(data_sampled['DEWP'].head(20))
-    # quit()
+
     # save data to csv file without indexes
     data_sampled.to_csv(f'../training_data/{station_id}_lt_clean.csv', index=False)
+
+
+# refactoring needed for new clean short term data with the proper columns for model
+def fetch_data(station_id: str) -> pd.DataFrame:
+    """
+    Fetches short term data from specific NOAA station and prepares data for ML model.
+
+    :param station_id: NOAA station to fetch data from.
+    :return: pandas DataFrame of prepared data.
+    """
+    # set url for the requested station data
+    url = f'https://www.ndbc.noaa.gov/data/realtime2/{station_id}.txt'
+
+    # identify columns for dataframe
+    column_names = ['YY', 'MM', 'DD', 'hh', 'mm', 'WDIR', 'WSPD', 'GST', 'WVHT', 'DPD', 'APD', 'MWD', 'PRES', 'ATMP',
+                    'WTMP', 'DEWP', 'VIS', 'PTDY', 'TIDE']
+
+    # pull data from url
+    data_list = get_request(url)
+
+    # set pulled data as a dataframe and return cleaned data
+    data = pd.DataFrame(data_list[2:], columns=column_names)
+
+    return clean_data(data)
 
 
 # used for cleaning short term data, might need to be refactored

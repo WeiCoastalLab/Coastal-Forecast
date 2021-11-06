@@ -187,7 +187,7 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
     ground_truth = ground_truth.assign(MWD_LSTM=pred_2d[:, 2])
     ground_truth = ground_truth.reset_index()
     if training is True:
-        plot_results(ground_truth, station_id, f'../model/results/{station_id}_pred_results.png',
+        plot_results(ground_truth, station_id, f'../model/training_results/{station_id}_results.png',
                      n_inputs, n_outputs, training)
         return truth_2d, pred_2d
     else:
