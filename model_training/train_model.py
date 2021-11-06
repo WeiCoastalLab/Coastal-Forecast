@@ -32,13 +32,11 @@ def prep_data(filepath: str) -> pd.DataFrame:
     return data
 
 
-def split_dataset(dataset: pd.DataFrame, station_id: str, n_outputs: int) \
-        -> (np.array, np.array, pd.DataFrame, StandardScaler):
+def split_dataset(dataset: pd.DataFrame, n_outputs: int) -> (np.array, np.array, pd.DataFrame, StandardScaler):
     """
     Splits dataset into a standard-scaled train and test set.
 
     :param dataset: dataframe of data
-    :param station_id: string of NOAA station identification number.
     :param n_outputs: number of required outputs for the ML model.
     :return: tuple of train set, test set, dataframe of ground truths, and target scaler.
     """
@@ -49,14 +47,9 @@ def split_dataset(dataset: pd.DataFrame, station_id: str, n_outputs: int) \
     data_scaled, target_scaler = scale_data(data, n_outputs)
 
     # split into train and test
-    split_idx = 38304  # ###### perhaps not have this hard coded, ask about having this as a percentage of the length of the dataset
-    n_times = (dataset.shape[0] - split_idx) // n_outputs
-    split_idx_up = split_idx + n_times * n_outputs  # this and the line above are technically equivalent, split_idx_up is not needed
-    train, test = data_scaled[:split_idx], data_scaled[split_idx:split_idx_up]
-    ground_truth = dataset.iloc[split_idx:split_idx_up]
-
-    # train, test = data_scaled[:split_idx], data_scaled[split_idx:]
-    # ground_truth = dataset.iloc[split_idx:]
+    split_idx = int(0.85 * len(dataset))
+    train, test = data_scaled[:split_idx], data_scaled[split_idx:]
+    ground_truth = dataset.iloc[split_idx:]
     train, test = array(split(train, len(train) / n_outputs)), array(split(test, len(test) / n_outputs))
 
     return train, test, ground_truth, target_scaler
@@ -236,8 +229,8 @@ def train_model(station_id: str, n_inputs: int, n_outputs: int) -> None:
     # prepare the data for training
     dataset = prep_data(f'../training_data/{station_id}_lt_clean.csv')
 
-    # split the data into train and test sets, will need the unscaled ground truths and scaler for the targets
-    train, test, ground_truth, target_scaler = split_dataset(dataset, station_id, n_outputs)
+    # split the data into train and test sets
+    train, test, ground_truth, target_scaler = split_dataset(dataset, n_outputs)
 
     # split the training set into predictor and response variable datasets
     train_x, train_y = to_supervised(train, n_inputs, n_outputs)
@@ -248,11 +241,11 @@ def train_model(station_id: str, n_inputs: int, n_outputs: int) -> None:
     # run predictions on the model
     predictions = run_predictions(model, train, test, n_inputs)
 
-    # post processing to prep for plotting results
+    # post processing to prep for plotting training_results
     test_2d, pred_2d = post_processing(test, predictions, target_scaler, ground_truth,
                                        station_id, n_inputs, n_outputs, True)
 
-    # summarize results from training
+    # summarize training_results from training
     score, scores = evaluate_forecasts(test_2d, pred_2d)
     summarize_scores('LSTM', score, scores)
 
