@@ -1,7 +1,5 @@
 # Created by Andrew Davison
 # Will be used to call the model and make predictions
-import pickle
-
 import numpy as np
 import pandas as pd
 from numpy import array, split
@@ -122,23 +120,23 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     :return: None
     """
     dataset = fetch_data(station_id)
-    print('\nBack in get_prediction()...')
-    print(dataset.info())
-    print(dataset.head(5))
-    print(dataset.head(-5))
+    # print('\nBack in get_prediction()...')
+    # print(dataset.info())
+    # print(dataset.head(5))
+    # print(dataset.head(-5))
 
     dependencies = {'r_square': r_square,
                     'rmse': rmse,
                     'mse': mse}
 
-    model = load_model('../model/model.h5', custom_objects=dependencies)
+    model = load_model(f'../model/{station_id}_model.h5', custom_objects=dependencies)
     print(model.summary())
-    dataset = dataset.drop('Time', axis=1)
-    data = dataset.to_numpy()
+    data = dataset.drop('Time', axis=1)
+    data = data.to_numpy()
 
     # scale the data
     data_scaled, target_scaler = scale_data(data, n_outputs)
-    print(data.head())
+    # print(dataset.head())
     n_times = (dataset.shape[0] // n_outputs) - 1
     index_inuse = n_times * n_outputs
     data_split = array(split(data_scaled[-index_inuse:], n_times))
@@ -149,7 +147,7 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     history = [x for x in test_1st]
     predictions = []
     for i in range(len(test_2nd)):
-        y_hat_sequence = forecast(model, history, n_input)
+        y_hat_sequence = forecast(model, history, n_inputs)
         predictions.append(y_hat_sequence)
         history.append(test_2nd[i, :])
     predictions = array(predictions)
@@ -188,12 +186,14 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
     ground_truth = ground_truth.reset_index()
     if training is True:
         plot_results(ground_truth, station_id, f'../model/training_results/{station_id}_results.png',
-                     n_inputs, n_outputs, training)
+                     n_inputs, n_outputs)
         return truth_2d, pred_2d
     else:
-        plot_results(ground_truth, station_id, f'static/{station_id}_system_prediction_.png', n_inputs, n_outputs)
+        plot_results(ground_truth, station_id, f'static/{station_id}_system_prediction.png', n_inputs, n_outputs)
 
 
 if __name__ == '__main__':
     n_input, n_output = 9, 3
-    get_prediction('41013', n_input, n_output)
+    for station in ['41008', '41009', '41013', '44013']:
+        get_prediction(station, n_input, n_output)
+        print()

@@ -169,9 +169,10 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     :return: clean preprocessed data.
     """
     # initialize columns for cleaning steps
-    column_names_kept = ['YY', 'MM', 'DD', 'hh', 'mm', 'WDIR', 'WSPD', 'PRES', 'WVHT', 'APD', 'MWD']
+    column_names_kept = ['YY', 'MM', 'DD', 'hh', 'mm', 'WDIR', 'WSPD', 'PRES', 'ATMP', 'WTMP',
+                         'DEWP', 'WVHT', 'APD', 'MWD']
     column_drops = ['MM', 'DD', 'YY', 'hh', 'mm', 'Datetime']
-    column_finals = ['Time', 'WDIR', 'WSPD', 'PRES', 'WVHT', 'APD', 'MWD']
+    column_finals = ['Time', 'WDIR', 'WSPD', 'PRES', 'ATMP', 'WTMP', 'DEWP', 'WVHT', 'APD', 'MWD']
 
     data = preprocess_data(data, column_names_kept, column_drops)
 
@@ -185,7 +186,8 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     # set all measured values to floating point numbers and replace NaN values with previous value
     for col in column_finals[1:]:
         data.loc[:, col] = data.loc[:, col].astype(float)
-        data.loc[:, col].fillna(method='pad', inplace=True)
+        data.loc[:, col].fillna(data[col].median(), inplace=True)
+        data.loc[:, col].fillna(0, inplace=True)
 
     # finalize dataset to be indexed by time at every hour and reset indexes
     data_sampled = data.set_index('Time').resample('60T').pad()
@@ -194,7 +196,6 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     return data_sampled
 
 
-# preprocesses dataframe to index by timestamp, should be good
 def preprocess_data(data: pd.DataFrame, columns_kept: list, columns_drop: list) -> pd.DataFrame:
     """
     Preprocessing data step to consolidate columns to a time column and sort and reindex dataframe.
@@ -224,10 +225,3 @@ def preprocess_data(data: pd.DataFrame, columns_kept: list, columns_drop: list) 
     data = data.sort_values('Time')
 
     return data
-
-
-if __name__ == "__main__":
-    fetch_lt_data('41008')
-    # fetch_data('41013')
-    # for station in ['41008', '41009', '41013', '44013']:
-    #     fetch_lt_data(station)

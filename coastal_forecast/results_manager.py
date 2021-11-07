@@ -20,8 +20,7 @@ def get_results():
     pass
 
 
-def plot_results(results: pd.DataFrame, station_id: str, filepath: str,
-                 n_inputs: int, n_outputs: int, training: bool = False) -> None:
+def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs: int, n_outputs: int) -> None:
     """
     Creates and saves a comparison plot of ground truth and predictions over time.
 
@@ -44,8 +43,6 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str,
     title_wvht = f'(a) Significant wave height (WVHT) comparison at St# {station_id} for {n_outputs}' \
                  f'-hour prediction with {n_inputs}-hour input'
     ax1.set_title(title_wvht)
-    if training is False:
-        ax1.set_ylim([0, 2])
     ax1.grid(b=True, which='major', color='#666666', linestyle='-')
     ax1.minorticks_on()
     ax1.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
@@ -59,8 +56,6 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str,
     title_apd = f'(b) Averaged wave period (APD) comparison at St# {station_id} for {n_outputs}' \
                 f'-hour prediction with {n_inputs}-hour input'
     ax2.set_title(title_apd)
-    if training is False:
-        ax2.set_ylim([2, 12])
     ax2.grid(b=True, which='major', color='#666666', linestyle='-')
     ax2.minorticks_on()
     ax2.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
@@ -73,8 +68,7 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str,
     title_mwd = f'(c) Mean Wave Direction (MWD) comparison at St# {station_id} for {n_outputs}' \
                 f'-hour prediction with {n_inputs}-hour input'
     ax3.set_title(title_mwd)
-    if training is False:
-        ax3.set_ylim([0, 360])
+    ax3.set_ylim([0, 360])
     ax3.set_ylabel('MWD (degree)')
     ax3.grid(b=True, which='major', color='#666666', linestyle='-')
     ax3.minorticks_on()
