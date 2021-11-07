@@ -1,25 +1,21 @@
+import datetime
 import sched
 import time
+
+from coastal_forecast.prediction_manager import get_prediction
 
 s = sched.scheduler(time.time, time.sleep)
 
 
-def something_else(sec=0):
-    time.sleep(10)
-    sec += 10
-    print(sec, end=" ", flush=True)
-    if sec < 60:
-        something_else(sec)
-    return
-
-
 def do_something(sc):
-    print("Doing stuff...")
+    print(f'Starting system prediction at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")}\n')
     # something to do
-    something_else()
-    s.enter(1, 1, do_something, (sc,))
+    stations = ['41008', '41009', '41013', '44013']
+    for station in stations:
+        get_prediction(station, 9, 3)
+    s.enter(5, 1, do_something, (sc,))
 
 
 print("Calling scheduler...")
-s.enter(1, 1, do_something, (s,))
+s.enter(0, 1, do_something, (s,))
 s.run()
