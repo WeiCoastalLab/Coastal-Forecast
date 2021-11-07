@@ -47,9 +47,11 @@ def split_dataset(dataset: pd.DataFrame, n_outputs: int) -> (np.array, np.array,
     data_scaled, target_scaler = scale_data(data, n_outputs)
 
     # split into train and test
-    split_idx = int(0.85 * len(dataset))
-    train, test = data_scaled[:split_idx], data_scaled[split_idx:]
-    ground_truth = dataset.iloc[split_idx:]
+    split_idx = 38304
+    n_times = (len(dataset) - split_idx) // n_outputs
+    split_idx_up = split_idx + n_times * n_outputs
+    train, test = data_scaled[:split_idx], data_scaled[split_idx:split_idx_up]
+    ground_truth = dataset.iloc[split_idx:split_idx_up]
     train, test = array(split(train, len(train) / n_outputs)), array(split(test, len(test) / n_outputs))
 
     return train, test, ground_truth, target_scaler
