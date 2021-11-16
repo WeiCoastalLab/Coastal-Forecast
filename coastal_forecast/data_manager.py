@@ -183,7 +183,7 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     data.reset_index(inplace=True)
     data = data.loc[:, column_finals]
 
-    # set all measured values to floating point numbers and replace NaN values with previous value
+    # set all measured values to floating point numbers and replace NaN values
     for col in column_finals[1:]:
         data.loc[:, col] = data.loc[:, col].astype(float)
         data.loc[:, col].fillna(data[col].median(), inplace=True)

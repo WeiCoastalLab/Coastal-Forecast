@@ -119,6 +119,7 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     :param n_outputs: number of outputs from trained model.
     :return: None
     """
+    print("SUCCESSFUL CALL!!")
     dataset = fetch_data(station_id)
     # print('\nBack in get_prediction()...')
     # print(dataset.info())
@@ -140,9 +141,9 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     n_times = (dataset.shape[0] // n_outputs) - 1
     index_inuse = n_times * n_outputs
     data_split = array(split(data_scaled[-index_inuse:], n_times))
-    test_1st = data_split[:len(data_split) - 10]
-    test_2nd = data_split[-10:]
-    ground_truth = dataset.iloc[-10 * n_outputs:]
+    test_1st = data_split[:len(data_split) - 24]
+    test_2nd = data_split[-24:]
+    ground_truth = dataset.iloc[-24 * n_outputs:]
 
     history = [x for x in test_1st]
     predictions = []
