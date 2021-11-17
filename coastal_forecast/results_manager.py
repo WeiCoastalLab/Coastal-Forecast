@@ -8,18 +8,6 @@ dpi = 300
 matplotlib.rc("savefig", dpi=dpi)
 
 
-def hello():
-    return "Hello from Component results_manager"
-
-
-def store_results():
-    pass
-
-
-def get_results():
-    pass
-
-
 def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs: int, n_outputs: int) -> None:
     """
     Creates and saves a comparison plot of ground truth and predictions over time.
