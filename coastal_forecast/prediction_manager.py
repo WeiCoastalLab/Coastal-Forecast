@@ -1,5 +1,7 @@
 # Created by Andrew Davison
 # Will be used to call the model and make predictions
+import datetime
+
 import numpy as np
 import pandas as pd
 from numpy import array, split
@@ -130,7 +132,7 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
                     'rmse': rmse,
                     'mse': mse}
 
-    model = load_model(f'../model/{station_id}_model.h5', custom_objects=dependencies)
+    model = load_model(f'./model/{station_id}_model.h5', custom_objects=dependencies)
     print(model.summary())
     data = dataset.drop('Time', axis=1)
     data = data.to_numpy()
@@ -190,11 +192,10 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
                      n_inputs, n_outputs)
         return truth_2d, pred_2d
     else:
-        plot_results(ground_truth, station_id, f'static/{station_id}_system_prediction.png', n_inputs, n_outputs)
+        plot_results(ground_truth, station_id,
+                     f'coastal_forecast/static/{station_id}_system_prediction.png', n_inputs, n_outputs)
 
 
-if __name__ == '__main__':
-    n_input, n_output = 9, 3
-    for station in ['41008', '41009', '41013', '44013']:
-        get_prediction(station, n_input, n_output)
-        print()
+def test_scheduler(station_id: str, n_inputs: int, n_outputs: int) -> None:
+    print(f'Successful call for station {station_id}, '
+          f'{n_inputs} inputs and {n_outputs} outputs...{datetime.datetime.now()}')
