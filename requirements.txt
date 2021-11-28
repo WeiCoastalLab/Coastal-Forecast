@@ -5,3 +5,4 @@ tensorflow==2.6.0
 flask==2.0.1
 requests==2.26.0
 matplotlib==3.4.3
+apscheduler~=3.7.0
