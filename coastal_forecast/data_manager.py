@@ -1,5 +1,4 @@
 # Created by Andrew Davison
-# Used to scrape and clean long term training_data and short term data for use in model training and predictions
 import csv
 from datetime import datetime
 
