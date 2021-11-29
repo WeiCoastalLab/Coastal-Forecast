@@ -1,7 +1,4 @@
 # Created by Andrew Davison
-# Will be used to call the model and make predictions
-import datetime
-
 import numpy as np
 import pandas as pd
 from numpy import array, split
@@ -11,10 +8,6 @@ from tensorflow.python.keras.models import load_model, Sequential
 
 from coastal_forecast.data_manager import fetch_data
 from coastal_forecast.results_manager import plot_results
-
-
-def hello():
-    return "Hello from Component prediction_manager"
 
 
 # Custom loss functions, credit: https://github.com/keras-team/keras/issues/7947
@@ -121,25 +114,21 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     :param n_outputs: number of outputs from trained model.
     :return: None
     """
-    print("SUCCESSFUL CALL!!")
-    dataset = fetch_data(station_id)
-    # print('\nBack in get_prediction()...')
-    # print(dataset.info())
-    # print(dataset.head(5))
-    # print(dataset.head(-5))
-
     dependencies = {'r_square': r_square,
                     'rmse': rmse,
                     'mse': mse}
 
     model = load_model(f'./model/{station_id}_model.h5', custom_objects=dependencies)
-    print(model.summary())
+
+    print(f'Making new system prediction for station {station_id}:')
+
+    dataset = fetch_data(station_id)
     data = dataset.drop('Time', axis=1)
     data = data.to_numpy()
 
     # scale the data
     data_scaled, target_scaler = scale_data(data, n_outputs)
-    # print(dataset.head())
+
     n_times = (dataset.shape[0] // n_outputs) - 1
     index_inuse = n_times * n_outputs
     data_split = array(split(data_scaled[-index_inuse:], n_times))
@@ -194,8 +183,3 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
     else:
         plot_results(ground_truth, station_id,
                      f'coastal_forecast/static/{station_id}_system_prediction.png', n_inputs, n_outputs)
-
-
-def test_scheduler(station_id: str, n_inputs: int, n_outputs: int) -> None:
-    print(f'Successful call for station {station_id}, '
-          f'{n_inputs} inputs and {n_outputs} outputs...{datetime.datetime.now()}')
