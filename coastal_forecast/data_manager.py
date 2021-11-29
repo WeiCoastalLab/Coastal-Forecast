@@ -1,15 +1,10 @@
 # Created by Andrew Davison
-# Used to scrape and clean long term training_data and short term data for use in model training and predictions
 import csv
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import requests
-
-
-def hello():
-    return "Hello from Component data_manager"
 
 
 def get_request(url: str) -> list:
