@@ -3,6 +3,6 @@ from coastal_forecast.routes import scheduled_task
 
 if __name__ == "__main__":
     scheduled_task()
-    scheduler.add_job(scheduled_task, 'interval', minutes=1)
+    scheduler.add_job(scheduled_task, 'interval', minutes=10)
     scheduler.start()
     app.run()  #debug=True)
