@@ -7,10 +7,6 @@ import pandas as pd
 import requests
 
 
-def hello():
-    return "Hello from Component data_manager"
-
-
 def get_request(url: str) -> list:
     """
     Sends request for data from url.
