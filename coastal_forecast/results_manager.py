@@ -1,5 +1,4 @@
 # Created by Andrew Davison
-# Process training_results to be displayed on the page and stored in database
 import matplotlib
 import pandas as pd
 from matplotlib import pyplot as plt
