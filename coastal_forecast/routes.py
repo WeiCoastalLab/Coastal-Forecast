@@ -37,12 +37,6 @@ def grays():
 
 
 def scheduled_task():
-    print('Running schedule', datetime.utcnow())
-    print(pred_time)
     for station in stations:
-        pm.test_scheduler(station, 9, 3)
-        # pm.get_prediction(station, 9, 3)
+        pm.get_prediction(station, 9, 3)
         pred_time[station] = datetime.utcnow().strftime('%m/%d/%Y %H:%M')
-    print('\t', (datetime.strptime(pred_time['41013'], '%m/%d/%Y %H:%M') + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M'))
-    print(pred_time, '\n')
-
