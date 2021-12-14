@@ -36,3 +36,7 @@ on the topic, specifically the section on [device placement](https://www.tensorf
 * Running <b>run.py</b> will activate the Flask server
 * Follow the link provided by IDE, terminal/console, or copy and paste the line below into your browser.
 <br/>&ensp;127.0.0.1:5000
+
+## Running System Test
+* Begin server session to activate local host.
+* Run script for test file(s) in system directory.
