@@ -167,7 +167,7 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
     pred_squeezed = np.squeeze(y_pred)
     truth_2d = truth_squeezed.reshape((truth_squeezed.shape[0] * truth_squeezed.shape[1], truth_squeezed.shape[2]))
     pred_2d = pred_squeezed.reshape((pred_squeezed.shape[0] * pred_squeezed.shape[1], pred_squeezed.shape[2]))
-    
+
     truth_2d = scalar_target.inverse_transform(truth_2d[:, -n_outputs:])
     pred_2d = scalar_target.inverse_transform(pred_2d)
 
