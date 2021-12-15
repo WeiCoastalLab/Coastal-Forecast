@@ -5,7 +5,7 @@ import unittest
 
 
 class TestAppChrome(unittest.TestCase):
-    driver = webdriver.Chrome(executable_path='tests/drivers/chromedriver.exe')
+    driver = webdriver.Chrome(executable_path='../drivers/chromedriver.exe')
 
     @classmethod
     def setUpClass(cls) -> None:
