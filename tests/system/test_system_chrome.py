@@ -5,7 +5,8 @@ import unittest
 
 
 class TestAppChrome(unittest.TestCase):
-    driver = webdriver.Chrome(executable_path='chromedriver', options='--no-sandbox')
+    option = webdriver.ChromeOptions().add_argument('--no-sandbox')
+    driver = webdriver.Chrome(executable_path='chromedriver', options=option)
 
     @classmethod
     def setUpClass(cls) -> None:
