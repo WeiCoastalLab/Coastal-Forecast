@@ -145,7 +145,7 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     predictions = array(predictions)
 
     post_processing(test_2nd, predictions, target_scaler, ground_truth, station_id, n_inputs, n_outputs)
-    
+
 
 def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardScaler,
                     ground_truth: pd.DataFrame, station_id: str, n_inputs: int,
