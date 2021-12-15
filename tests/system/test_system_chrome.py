@@ -5,7 +5,7 @@ import unittest
 
 
 class TestAppChrome(unittest.TestCase):
-    option = webdriver.ChromeOptions().add_argument('--no-sandbox')
+    option = webdriver.ChromeOptions().add_argument('--disable-dev-shm-usage')
     driver = webdriver.Chrome(executable_path='chromedriver', options=option)
 
     @classmethod
