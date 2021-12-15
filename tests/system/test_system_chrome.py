@@ -5,11 +5,10 @@ import unittest
 
 
 class TestAppChrome(unittest.TestCase):
-    driver = None
+    driver = webdriver.Chrome(executable_path='../drivers/chromedriver.exe')
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.driver = webdriver.Chrome(executable_path='../drivers/chromedriver.exe')
         cls.driver.implicitly_wait(10)
         cls.driver.maximize_window()
 
