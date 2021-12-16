@@ -5,7 +5,9 @@ import unittest
 
 
 class TestAppChrome(unittest.TestCase):
-    options = webdriver.ChromeOptions().add_argument('--disable-dev-shm-usage').add_argument('--headless')
+    options = webdriver.ChromeOptions()
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--headless')
     driver = webdriver.Chrome(executable_path='chromedriver', options=options)
 
     @classmethod
