@@ -22,7 +22,7 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        conda activate tf
+        conda env update --file .github/workflows/python-package-conda.yml --name tf
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         python run.py
     - name: Lint with flake8
