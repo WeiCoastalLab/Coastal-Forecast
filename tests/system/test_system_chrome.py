@@ -8,7 +8,6 @@ from coastal_forecast import app
 
 class TestAppChrome(unittest.TestCase):
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     driver = webdriver.Chrome(executable_path='chromedriver', options=options)
