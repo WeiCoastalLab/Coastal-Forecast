@@ -16,7 +16,6 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs
     :param filepath: string of filepath, with filename, to save comparison plots.
     :param n_inputs: number of inputs used in model.
     :param n_outputs: number of outputs predicted from model.
-    :param training: boolean for if training prediction plot or short term system plot, default to False.
     :return: None
     """
     print(f"Plotting station {station_id} results...\n")
