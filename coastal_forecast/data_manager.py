@@ -127,7 +127,6 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     data_sampled.to_csv(f'../training_data/{station_id}_lt_clean.csv', index=False)
 
 
-# refactoring needed for new clean short term data with the proper columns for model
 def fetch_data(station_id: str) -> pd.DataFrame:
     """
     Fetches short term data from specific NOAA station and prepares data for ML model
@@ -150,7 +149,6 @@ def fetch_data(station_id: str) -> pd.DataFrame:
     return clean_data(data)
 
 
-# used for cleaning short term data, might need to be refactored
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     """
     Preprocess cleaning of data for use in a trained ML model
