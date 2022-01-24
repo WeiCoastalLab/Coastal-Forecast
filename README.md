@@ -36,9 +36,3 @@ on the topic, specifically the section on [device placement](https://www.tensorf
 * Running <b>run.py</b> will activate the Flask server
 * Follow the link provided by IDE, terminal/console, or copy and paste the line below into your browser.
 <br/>&ensp;127.0.0.1:5000
-
-## Running System Test
-* Begin server session to activate local host.
-* Run script for test file(s) in system directory.
-  * NOTE: Browser is required to be installed on local machine to run test for that specific browser;
-  i.e., Chrome must be installed to run "test_system_chrome.py".
