@@ -9,10 +9,9 @@ import requests
 
 def get_request(url: str) -> list:
     """
-    Sends request for data from url.
-
-    :param url: url of data source.
-    :return: list of scraped data for further processing.
+    Sends request for data from url
+    :param url: url of data source
+    :return: list of scraped data for further processing
     """
     print(f'Fetching data from {url}...')
     with requests.Session() as s:
@@ -29,9 +28,8 @@ def get_request(url: str) -> list:
 
 def fetch_lt_data(station_id: str) -> None:
     """
-    Fetches long term data from specific NOAA station and prepares data for ML model training.
-
-    :param station_id: string representation of NOAA station identifier, default is Station 41013, Frying Pan Shoals.
+    Fetches long term data from specific NOAA station and prepares data for ML model training
+    :param station_id: string representation of NOAA station identifier, default is Station 41013, Frying Pan Shoals
     :return: None
     """
     # create a list of the past five available years
@@ -50,10 +48,9 @@ def fetch_lt_data(station_id: str) -> None:
 
 def fetch_lt_data_helper(station_id: str, years: list) -> pd.DataFrame:
     """
-    Helper function to scrape historical NOAA station data from a list of past years.
-
-    :param station_id: string representation of NOAA station identifier.
-    :param years: list of past target years to scrape data for.
+    Helper function to scrape historical NOAA station data from a list of past years
+    :param station_id: string representation of NOAA station identifier
+    :param years: list of past target years to scrape data for
     :return: data from single year for further processing
     """
     # initialize urls with station_id and requested years
@@ -83,10 +80,9 @@ def fetch_lt_data_helper(station_id: str, years: list) -> pd.DataFrame:
 
 def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     """
-    Cleans and saves long term data to csv file for later model training.
-
-    :param data: dataframe of long term data.
-    :param station_id: string of NOAA station identification number.
+    Cleans and saves long term data to csv file for later model training
+    :param data: dataframe of long term data
+    :param station_id: string of NOAA station identification number
     :return: None
     """
     column_names_kept = ['YY', 'MM', 'DD', 'hh', 'mm', 'WDIR', 'WSPD', 'GST', 'WVHT', 'DPD', 'APD', 'MWD', 'PRES',
@@ -134,10 +130,9 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
 # refactoring needed for new clean short term data with the proper columns for model
 def fetch_data(station_id: str) -> pd.DataFrame:
     """
-    Fetches short term data from specific NOAA station and prepares data for ML model.
-
-    :param station_id: NOAA station to fetch data from.
-    :return: pandas DataFrame of prepared data.
+    Fetches short term data from specific NOAA station and prepares data for ML model
+    :param station_id: NOAA station to fetch data from
+    :return: pandas DataFrame of prepared data
     """
     # set url for the requested station data
     url = f'https://www.ndbc.noaa.gov/data/realtime2/{station_id}.txt'
@@ -158,10 +153,9 @@ def fetch_data(station_id: str) -> pd.DataFrame:
 # used for cleaning short term data, might need to be refactored
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     """
-    Preprocess cleaning of data for use in a trained ML model.
-
+    Preprocess cleaning of data for use in a trained ML model
     :param data: dataframe of data to be cleaned
-    :return: clean preprocessed data.
+    :return: clean preprocessed data
     """
     # initialize columns for cleaning steps
     column_names_kept = ['YY', 'MM', 'DD', 'hh', 'mm', 'WDIR', 'WSPD', 'PRES', 'ATMP', 'WTMP',
@@ -193,8 +187,7 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
 
 def preprocess_data(data: pd.DataFrame, columns_kept: list, columns_drop: list) -> pd.DataFrame:
     """
-    Preprocessing data step to consolidate columns to a time column and sort and reindex dataframe.
-
+    Preprocessing data step to consolidate columns to a time column and sort and reindex dataframe
     :param data: dataframe to be preprocessed
     :param columns_kept: list of columns to keep in the dataframe
     :param columns_drop: list of columns to drop in the dataframe
@@ -212,11 +205,11 @@ def preprocess_data(data: pd.DataFrame, columns_kept: list, columns_drop: list) 
                                                                                                               :, 'mm']
     data.loc[:, 'Time'] = pd.to_datetime(data.loc[:, 'Datetime'].astype(str), format='%Y%m%d%H%M')
 
-    # drop not required columns and move Time column to first position followed by all other columns
+    # drop not required columns and move Time column to first position followed by remaining columns
     data.drop(columns_drop, inplace=True, axis=1)
     data = data[['Time'] + [col for col in data.columns if col != 'Time']]
 
-    # sort Time column in ascending order, earliest time to present
+    # sort Time column in ascending order
     data = data.sort_values('Time')
 
     return data

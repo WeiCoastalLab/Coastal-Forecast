@@ -14,10 +14,9 @@ from coastal_forecast.results_manager import plot_results
 # root mean squared error (rmse) for regression
 def rmse(y_true: np.array, y_pred: np.array) -> float:
     """
-    Calculates RMSE.
-
-    :param y_true: observed response.
-    :param y_pred: predicted response.
+    Calculates RMSE
+    :param y_true: observed response
+    :param y_pred: predicted response
     :return: RMSE
     """
     return backend.sqrt(backend.mean(backend.square(y_pred - y_true), axis=-1))
@@ -26,11 +25,10 @@ def rmse(y_true: np.array, y_pred: np.array) -> float:
 # mean squared error (mse) for regression
 def mse(y_true: np.array, y_pred: np.array) -> float:
     """
-    Calculates MSE.
-
-    :param y_true: observed response.
-    :param y_pred: predicted response.
-    :return: MSE.
+    Calculates MSE
+    :param y_true: observed response
+    :param y_pred: predicted response
+    :return: MSE
     """
     return backend.mean(backend.square(y_pred - y_true), axis=-1)
 
@@ -38,11 +36,10 @@ def mse(y_true: np.array, y_pred: np.array) -> float:
 # coefficient of determination (R^2) for regression
 def r_square(y_true: np.array, y_pred: np.array) -> float:
     """
-    Calculates R^2.
-
-    :param y_true: observed response.
-    :param y_pred: predicted response.
-    :return: R^2.
+    Calculates R^2
+    :param y_true: observed response
+    :param y_pred: predicted response
+    :return: R^2
     """
     ssr = backend.sum(backend.square(y_true - y_pred))
     sst = backend.sum(backend.square(y_true - backend.mean(y_true)))
@@ -51,10 +48,9 @@ def r_square(y_true: np.array, y_pred: np.array) -> float:
 
 def r_square_loss(y_true: np.array, y_pred: np.array) -> float:
     """
-    Calculates R^2 loss.
-
-    :param y_true: observed response.
-    :param y_pred: predicted response.
+    Calculates R^2 loss
+    :param y_true: observed response
+    :param y_pred: predicted response
     :return: 1 - R^2
     """
     ssr = backend.sum(backend.square(y_true - y_pred))
@@ -64,12 +60,11 @@ def r_square_loss(y_true: np.array, y_pred: np.array) -> float:
 
 def forecast(model: Sequential, history: list, n_inputs: int) -> np.array:
     """
-    Conducts forecasting with the trained ML model on test data.
-
-    :param model: trained ML model to be used.
-    :param history: compiled historical data from test set.
-    :param n_inputs: number of inputs required.
-    :return: A prediction y_hat.
+    Conducts forecasting with the trained ML model on test data
+    :param model: trained ML model to be used
+    :param history: compiled historical data from test set
+    :param n_inputs: number of inputs required
+    :return: A prediction y_hat
     """
     # flatten training_data
     data = array(history)
@@ -88,11 +83,10 @@ def forecast(model: Sequential, history: list, n_inputs: int) -> np.array:
 
 def scale_data(data: np.array, n_outputs: int) -> (np.array, StandardScaler):
     """
-    Scales the data using a Standard Scaler. Scales predictors and targets separately.
-
-    :param data: array of data to be scaled.
-    :param n_outputs: number of outputs from model.
-    :return: tuple of scaled array and target scaler.
+    Scales the data using a Standard Scaler. Scales predictors and targets separately
+    :param data: array of data to be scaled
+    :param n_outputs: number of outputs from model
+    :return: tuple of scaled array and target scaler
     """
     # instantiate scaler instances
     input_scaler = StandardScaler()
@@ -107,11 +101,10 @@ def scale_data(data: np.array, n_outputs: int) -> (np.array, StandardScaler):
 
 def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
     """
-    Scrapes new data from NOAA station and runs a new short term prediction for display in the application.
-
-    :param station_id: string of NOAA station identification number.
-    :param n_inputs: number of inputs for trained model.
-    :param n_outputs: number of outputs from trained model.
+    Scrapes new data from NOAA station and runs a new short term prediction for display in the application
+    :param station_id: string of NOAA station identification number
+    :param n_inputs: number of inputs for trained model
+    :param n_outputs: number of outputs from trained model
     :return: None
     """
     dependencies = {'r_square': r_square,
@@ -151,17 +144,16 @@ def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardS
                     ground_truth: pd.DataFrame, station_id: str, n_inputs: int,
                     n_outputs: int, training: bool = False) -> (np.array, np.array) or None:
     """
-    Conducts post processing of prediction data and sends to plot results in results_manager.
-
-    :param y_true: array of ground truth values.
-    :param y_pred: array of predicted values.
+    Conducts post-processing of prediction data and sends to plot results in results_manager
+    :param y_true: array of ground truth values
+    :param y_pred: array of predicted values
     :param scalar_target: StandardScaler for inverse transformation of data
-    :param ground_truth: dataframe of truth values.
-    :param station_id: string of NOAA station identification number.
-    :param n_inputs: number of inputs used for model.
-    :param n_outputs: number of outputs from model.
-    :param training: boolean if results are from a training run.
-    :return: tuple of rescaled ground truth and predicted arrays if training, otherwise None.
+    :param ground_truth: dataframe of truth values
+    :param station_id: string of NOAA station identification number
+    :param n_inputs: number of inputs used for model
+    :param n_outputs: number of outputs from model
+    :param training: boolean if results are from a training run
+    :return: tuple of rescaled ground truth and predicted arrays if training, otherwise None
     """
     truth_squeezed = np.squeeze(y_true)
     pred_squeezed = np.squeeze(y_pred)
