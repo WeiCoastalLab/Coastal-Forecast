@@ -9,14 +9,12 @@ matplotlib.rc("savefig", dpi=dpi)
 
 def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs: int, n_outputs: int) -> None:
     """
-    Creates and saves a comparison plot of ground truth and predictions over time.
-
+    Creates and saves a comparison plot of ground truth and predictions over time
     :param results: dataframe of observed and predicted values
-    :param station_id: string of NOAA station identification number.
-    :param filepath: string of filepath, with filename, to save comparison plots.
-    :param n_inputs: number of inputs used in model.
-    :param n_outputs: number of outputs predicted from model.
-    :param training: boolean for if training prediction plot or short term system plot, default to False.
+    :param station_id: string of NOAA station identification number
+    :param filepath: string of filepath, with filename, to save comparison plots
+    :param n_inputs: number of inputs used in model
+    :param n_outputs: number of outputs predicted from model
     :return: None
     """
     print(f"Plotting station {station_id} results...\n")
@@ -27,9 +25,9 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs
     ax1.legend();  # noqa
     ax1.set_xlabel(' ')
     ax1.set_ylabel('WVHT (m)')
-    title_wvht = f'(a) Significant wave height (WVHT) comparison at St# {station_id} for {n_outputs}' \
-                 f'-hour prediction with {n_inputs}-hour input'
-    ax1.set_title(title_wvht)
+    title_wvht = f'(a) Significant wave height (WVHT) comparison at St# {station_id} for {n_outputs}-hour ' \
+                 f'prediction with {n_inputs}-hour input'
+    ax1.set_title(title_wvht)  # noqa
     ax1.grid(b=True, which='major', color='#666666', linestyle='-')
     ax1.minorticks_on()
     ax1.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
@@ -42,7 +40,7 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs
     ax2.set_ylabel('APD (s)')
     title_apd = f'(b) Averaged wave period (APD) comparison at St# {station_id} for {n_outputs}' \
                 f'-hour prediction with {n_inputs}-hour input'
-    ax2.set_title(title_apd)
+    ax2.set_title(title_apd)  # noqa
     ax2.grid(b=True, which='major', color='#666666', linestyle='-')
     ax2.minorticks_on()
     ax2.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
