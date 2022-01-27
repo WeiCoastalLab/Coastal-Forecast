@@ -1,1 +1,1 @@
-Miniconda3-latest-MacOSX-x86_64.sh
+Miniconda3-py39_4.11.0-MacOSX-x86_64.sh
