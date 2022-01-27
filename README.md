@@ -29,8 +29,12 @@ The environment will be activated, and you should see the environment variable i
 For using TensorFlow with a GPU, refer to the [TensorFlow documentation](https://www.tensorflow.org/guide/gpu) 
 on the topic, specifically the section on [device placement](https://www.tensorflow.org/guide/gpu#manual_device_placement).
 
-### Installing Packages from requirements.txt
-* In the terminal command line, enter:<br/>&ensp;pip install -r requirements.txt
+### Environment creation on Mac M1 with environment.yml file
+> conda create -f environment.yml
+> 
+> conda activate tensorflow
+
+* This should install the tensorflow environment with all dependencies.
 
 ## Starting/Running the Server
 * Running <b>run.py</b> will activate the Flask server
