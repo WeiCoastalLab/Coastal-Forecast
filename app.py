@@ -6,4 +6,4 @@ if __name__ == "__main__":
     scheduled_task()
     scheduler.add_job(scheduled_task, 'interval', hours=6)
     scheduler.start()
-    app.run(host='https://coastal-forecast.herokuapp.com', debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False)
