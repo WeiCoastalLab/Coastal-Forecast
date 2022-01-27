@@ -29,11 +29,6 @@ The environment will be activated, and you should see the environment variable i
 For using TensorFlow with a GPU, refer to the [TensorFlow documentation](https://www.tensorflow.org/guide/gpu) 
 on the topic, specifically the section on [device placement](https://www.tensorflow.org/guide/gpu#manual_device_placement).
 
-### Environment creation with environment.yml file
-> conda create -f environment.yml
-> 
-> conda activate tensorflow
-
 * This should install the tensorflow environment with all dependencies.
 
 ## Starting/Running the Server
