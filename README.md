@@ -29,10 +29,17 @@ The environment will be activated, and you should see the environment variable i
 For using TensorFlow with a GPU, refer to the [TensorFlow documentation](https://www.tensorflow.org/guide/gpu) 
 on the topic, specifically the section on [device placement](https://www.tensorflow.org/guide/gpu#manual_device_placement).
 
-For installing TensorFlow by YAML file:
+Creating conda environment with YAML file:
 > conda env create -f environment.yml
 > 
-> conda activate tensorflow
+> conda activate "environment name"
+
+Creating pure Python virtual environment with requirements.txt file (non conda environment):
+> pip install -r requirements.txt
+> 
+> (Windows): env\scripts\activate.bat
+> 
+> (Linux or MacOS): source env/bin/activate
 
 For MacOSX M1, refer to this video by [Jeff Heaton](https://youtu.be/_CO-ND1FTOU).
 
