@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from numpy import array, split
 from sklearn.preprocessing import StandardScaler
-from tensorflow.keras import backend
-from tensorflow.python.keras.models import load_model, Sequential
+from keras import backend
+from keras.models import load_model, Sequential
 
 from coastal_forecast.data_manager import fetch_data
 from coastal_forecast.results_manager import plot_results
