@@ -1,0 +1,8 @@
+/app/training_data
+/app/model/training_results
+/app/model/model_plot.png
+/app/docs
+/app/README.md
+/app/LICENSE.md
+/app/.gitignore
+/app/conda-requirements.txt
