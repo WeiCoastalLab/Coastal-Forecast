@@ -37,7 +37,7 @@ def grays():
                                  + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M'))
 
 
-def scheduled_task():
+def run_predictions():
     for station in stations:
         pm.get_prediction(station, 9, 3)
         pred_time[station] = datetime.utcnow().strftime('%m/%d/%Y %H:%M')
