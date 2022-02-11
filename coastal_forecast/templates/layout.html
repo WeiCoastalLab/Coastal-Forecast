@@ -47,7 +47,7 @@
     <div class="col-xs-8">
         <!-- Station information -->
         {% block content %}{% endblock %}
-        <br /><h2 style="color: blue"><strong>Select station on the map you wish to view >>></strong></h2>
+        <br /><h2 style="color: blue"><strong>Select station on the map you wish to view >>> </strong></h2>
     </div>
     <!-- Interactive map -->
     <div class="col-sm-4">
@@ -63,13 +63,12 @@
 
 <!-- Prediction plot -->
 <div id="plot" class="text-center" style="padding-top: 12px">
-    <h3>Last prediction time: {{current}} UTC
+    <h3>Last prediction time: {{ current }} UTC
         &emsp;&#09;&emsp;&#09;&emsp;&#09;&emsp;&#09;&emsp;&#09;&emsp;
-        Next prediction time: {{next}} UTC
+        Next prediction time: {{ next }} UTC
     </h3>
     <div>
-        <img src="../static/{{title}}_system_prediction.png" alt="PredPlot"
-             style="padding-left: 12px; padding-right: 12px; height: 100%; width: 100%; object-fit: contain">
+        <img src="{{ plot_image }}" alt="PredPlot" style="padding-left: 12px; padding-right: 12px; height: 100%; width: 100%; object-fit: contain">
     </div>
 </div>
 
