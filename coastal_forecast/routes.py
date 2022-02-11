@@ -1,5 +1,5 @@
 # Created by Andrew Davison
-from flask import render_template
+from flask import render_template, url_for
 from datetime import datetime, timedelta
 from coastal_forecast import app, prediction_manager as pm
 
@@ -7,34 +7,48 @@ stations = ['41008', '41009', '41013', '44013']
 pred_time = dict.fromkeys(stations, datetime.utcnow().strftime('%m/%d/%Y %H:%M'))
 
 
+def process_params(station_id: str) -> tuple:
+    """
+    Processes and returns current prediction time, next prediction time,
+    and plot image location for rendering of template
+    :param station_id: identification number of station to process
+    :return: tuple of current prediction time, next prediction time, and relative plot image path
+    """
+    current_time = pred_time[station_id]
+    next_time = (datetime.strptime(pred_time[station_id],
+                                   '%m/%d/%Y %H:%M') + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M')
+    plot_image = url_for('static', filename=station_id + '_system_prediction.png')
+    return current_time, next_time, plot_image
+
+
 # home page
 @app.route("/")
 @app.route("/41013")
 def home():
-    return render_template('41013.html', title='41013', current=pred_time['41013'],
-                           next=(datetime.strptime(pred_time['41013'], '%m/%d/%Y %H:%M')
-                                 + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M'))
+    title = '41013'
+    current_time, next_time, plot_image = process_params(title)
+    return render_template('41013.html', title=title, current=current_time, next=next_time, plot_image=plot_image)
 
 
 @app.route("/41009")
 def canaveral():
-    return render_template('41009.html', title='41009', current=pred_time['41009'],
-                           next=(datetime.strptime(pred_time['41009'], '%m/%d/%Y %H:%M')
-                                 + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M'))
+    title = '41009'
+    current_time, next_time, plot_image = process_params(title)
+    return render_template('41009.html', title=title, current=current_time, next=next_time, plot_image=plot_image)
 
 
 @app.route("/44013")
 def boston():
-    return render_template('44013.html', title='44013', current=pred_time['44013'],
-                           next=(datetime.strptime(pred_time['44013'], '%m/%d/%Y %H:%M')
-                                 + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M'))
+    title = '44013'
+    current_time, next_time, plot_image = process_params(title)
+    return render_template('44013.html', title=title, current=current_time, next=next_time, plot_image=plot_image)
 
 
 @app.route("/41008")
 def grays():
-    return render_template('41008.html', title='41008', current=pred_time['41008'],
-                           next=(datetime.strptime(pred_time['41008'], '%m/%d/%Y %H:%M')
-                                 + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M'))
+    title = '41008'
+    current_time, next_time, plot_image = process_params(title)
+    return render_template('41008.html', title=title, current=current_time, next=next_time, plot_image=plot_image)
 
 
 def run_predictions():
