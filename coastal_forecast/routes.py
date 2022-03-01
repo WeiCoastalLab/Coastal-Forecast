@@ -51,7 +51,7 @@ def grays():
     return render_template('41008.html', title=title, current=current_time, next=next_time, plot_image=plot_image)
 
 
-def run_predictions():
+def run_predictions() -> None:
     for station in stations:
         pm.get_prediction(station, 9, 3)
         pred_time[station] = datetime.utcnow().strftime('%m/%d/%Y %H:%M')
