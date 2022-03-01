@@ -81,7 +81,7 @@ def forecast(model: Sequential, history: list, n_inputs: int) -> np.array:
     return y_hat
 
 
-def scale_data(data: np.array, n_outputs: int) -> (np.array, StandardScaler):
+def scale_data(data: np.array, n_outputs: int) -> tuple[np.array, StandardScaler]:
     """
     Scales the data using a Standard Scaler. Scales predictors and targets separately
     :param data: array of data to be scaled
@@ -142,7 +142,7 @@ def get_prediction(station_id: str, n_inputs: int, n_outputs: int) -> None:
 
 def post_processing(y_true: np.array, y_pred: np.array, scalar_target: StandardScaler,
                     ground_truth: pd.DataFrame, station_id: str, n_inputs: int,
-                    n_outputs: int, training: bool = False) -> (np.array, np.array) or None:
+                    n_outputs: int, training: bool = False) -> tuple[np.array, np.array] or None:
     """
     Conducts post-processing of prediction data and sends to plot results in results_manager
     :param y_true: array of ground truth values
