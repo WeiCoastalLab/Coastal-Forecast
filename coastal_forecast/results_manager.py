@@ -1,4 +1,6 @@
 # Created by Andrew Davison
+from datetime import datetime
+
 import matplotlib
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -60,5 +62,9 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs
     ax3.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
     ax3.legend(loc="lower center", ncol=2)
 
-    plt.savefig(filepath, bbox_inches='tight')
+    meta = {'Title': filepath,
+            'Station': station_id,
+            'Time': datetime.utcnow().strftime('%m/%d/%Y %H:%M')}
+
+    plt.savefig(filepath, bbox_inches='tight', metadata=meta)
     plt.show()
