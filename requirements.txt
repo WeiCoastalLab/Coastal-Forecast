@@ -8,3 +8,4 @@ requests~=2.27.1
 scikit-learn~=1.0.2
 pytz==2021.3
 pillow==9.0.0
+tensorflow-cpu~=2.8.0
