@@ -12,7 +12,7 @@ def timed_job():
 if __name__ == "__main__":
     timed_job()
     interval = BackgroundScheduler(timezone='UTC', daemon=True)
-    interval.add_job(timed_job, 'interval', minutes=5)
+    interval.add_job(timed_job, 'interval', hours=6)
     try:
         interval.start()
         print("Scheduler started...")
