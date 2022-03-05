@@ -68,7 +68,8 @@
         Next prediction time: {{ next }} UTC
     </h3>
     <div>
-        <img src="{{ plot_image }}" alt="PredPlot" style="padding-left: 12px; padding-right: 12px; height: 100%; width: 100%; object-fit: contain">
+        <img src="{{ url_for('static', filename=title+'_system_prediction.png') }}" alt="PredPlot"
+             style="padding-left: 12px; padding-right: 12px; height: 100%; width: 100%; object-fit: contain">
     </div>
 </div>
 
