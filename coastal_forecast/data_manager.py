@@ -108,10 +108,10 @@ def save_lt_data(data: pd.DataFrame, station_id: str) -> None:
     # replace all NaN values with median value of the column
     null_columns = ['WDIR', 'WSPD', 'GST', 'WVHT', 'APD', 'DPD', 'MWD', 'PRES', 'ATMP', 'WTMP', 'DEWP']
     for col in null_columns:
-        data.loc[:, col].fillna(data[col].median(), inplace=True)  # method='pad', inplace=True)
+        data.loc[:, col].fillna(data[col].median(), inplace=True)
 
     # resample data by every hour and reset indexing
-    data_sampled = data.set_index('Time').resample('60T').pad()
+    data_sampled = data.set_index('Time').resample('60T').ffill()
     data_sampled.reset_index(inplace=True)
 
     # mask first record from dataset and reset dataframe
@@ -177,7 +177,7 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
         data.loc[:, col].fillna(0, inplace=True)
 
     # finalize dataset to be indexed by time at every hour and reset indexes
-    data_sampled = data.set_index('Time').resample('60T').pad()
+    data_sampled = data.set_index('Time').resample('60T').ffill()
     data_sampled.reset_index(inplace=True)
 
     return data_sampled
