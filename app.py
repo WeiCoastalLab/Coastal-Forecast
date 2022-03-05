@@ -1,6 +1,7 @@
 # Created by Andrew Davison
-from coastal_forecast import app
+from coastal_forecast import app, timed_job
 
 
 if __name__ == '__main__':
+    timed_job()
     app.run(debug=True, use_reloader=False)
