@@ -14,6 +14,7 @@ app = Flask(__name__)
 scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
 scheduler.add_job(timed_job, 'interval', hours=6)
 try:
+    timed_job()
     print("Starting scheduler...")
     scheduler.start()
 except KeyboardInterrupt or SystemExit:
