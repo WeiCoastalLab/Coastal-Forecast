@@ -10,13 +10,12 @@ def timed_job():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False)
     timed_job()
     scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
     scheduler.add_job(timed_job, 'interval', hours=6)
     try:
-        print("starting scheduler...")
+        print("Starting scheduler...")
         scheduler.start()
     except KeyboardInterrupt or SystemExit:
         scheduler.shutdown(wait=False)
-
+    app.run(debug=True, use_reloader=False)
