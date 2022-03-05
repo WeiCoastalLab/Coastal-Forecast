@@ -1,12 +1,6 @@
 # Created by Andrew Davison
-from coastal_forecast import app, scheduler, timed_job
+from coastal_forecast import app
 
 
 if __name__ == "__main__":
-    timed_job()
-    scheduler.add_job(timed_job, 'interval', hours=6)
-    try:
-        scheduler.start()
-    except KeyboardInterrupt or SystemExit:
-        scheduler.shutdown(wait=False)
     app.run(debug=True, use_reloader=False)
