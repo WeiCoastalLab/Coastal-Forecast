@@ -1,6 +1,5 @@
 # Created by Andrew Davison
 from flask import Flask
-from whitenoise import WhiteNoise
 from apscheduler.schedulers.background import BackgroundScheduler
 from coastal_forecast import prediction_manager as pm
 
@@ -11,10 +10,9 @@ def timed_job():
         pm.get_prediction(station, 9, 3)
 
 
-timed_job()
-scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
 app = Flask(__name__)
-app.wsgi_app = WhiteNoise(app.wsgi_app, root='coastal_forecast/static/')
+scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
+scheduler.add_job(timed_job, 'interval', minutes=5)
 try:
     print("Starting scheduler...")
     scheduler.start()
