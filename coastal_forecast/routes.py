@@ -15,7 +15,6 @@ def process_params(station_id: str) -> tuple[str, str]:
         img.load()
         current_time = img.info['Time Created']
         next_time = img.info['Time Offset']
-    print(current_time, next_time)
     return current_time, next_time
 
 
