@@ -10,6 +10,7 @@ def timed_job():
         pm.get_prediction(station, 9, 3)
 
 
+timed_job()
 app = Flask(__name__)
 scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
 
