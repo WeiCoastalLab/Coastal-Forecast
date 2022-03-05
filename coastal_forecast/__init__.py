@@ -13,10 +13,5 @@ def timed_job():
 app = Flask(__name__)
 timed_job()
 scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
-scheduler.add_job(timed_job, 'interval', hours=6)
-try:
-    scheduler.start()
-except KeyboardInterrupt or SystemExit:
-    scheduler.shutdown(wait=False)
 
 from coastal_forecast import routes  # noqa E402
