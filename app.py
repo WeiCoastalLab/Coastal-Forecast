@@ -3,6 +3,7 @@ from coastal_forecast import app, scheduler, timed_job
 
 
 if __name__ == "__main__":
+    timed_job()
     scheduler.add_job(timed_job, 'interval', minutes=2)  # hours=6)
     try:
         scheduler.start()

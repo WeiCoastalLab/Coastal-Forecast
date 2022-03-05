@@ -11,7 +11,6 @@ def timed_job():
 
 
 app = Flask(__name__)
-timed_job()
 scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
 
 from coastal_forecast import routes  # noqa E402
