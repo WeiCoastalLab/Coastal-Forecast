@@ -13,9 +13,9 @@ def process_params(station_id: str) -> tuple[str, str, str]:
     :return: tuple of current prediction time, next prediction time, and relative plot image path
     """
     plot_image = url_for('static', filename=station_id + '_system_prediction.png')
-    fig = Image.open('coastal_forecast/' + plot_image)
-    fig.load()
-    current_time = fig.info['Time']
+    with Image.open('coastal_forecast/' + plot_image) as img:
+        img.load()
+        current_time = img.info['Time']
     next_time = (datetime.strptime(current_time, '%m/%d/%Y %H:%M') + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M')
     return current_time, next_time, plot_image
 
