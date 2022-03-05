@@ -12,7 +12,7 @@ def timed_job():
 
 app = Flask(__name__)
 scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
-scheduler.add_job(timed_job, 'interval', minutes=5)
+scheduler.add_job(timed_job, 'interval', hours=6)
 try:
     print("Starting scheduler...")
     scheduler.start()
