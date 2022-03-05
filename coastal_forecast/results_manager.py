@@ -1,5 +1,5 @@
 # Created by Andrew Davison
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import matplotlib
 import pandas as pd
@@ -62,9 +62,11 @@ def plot_results(results: pd.DataFrame, station_id: str, filepath: str, n_inputs
     ax3.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
     ax3.legend(loc="lower center", ncol=2)
 
+    current = datetime.utcnow()
     meta = {'Title': filepath,
             'Station': station_id,
-            'Time': datetime.utcnow().strftime('%m/%d/%Y %H:%M')}
+            'Time Created': current.strftime('%m/%d/%Y %H:%M'),
+            'Time Offset': (current + timedelta(hours=6)).strftime('%m/%d/%Y %H:%M')}
 
     plt.savefig(filepath, bbox_inches='tight', metadata=meta)
     plt.show()
